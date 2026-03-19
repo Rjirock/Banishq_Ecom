@@ -19,8 +19,37 @@
   }
 }
 
+/* app/globals.css */
+
+/* ── Box model reset ───────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* ── Full-width root elements ──────────────── */
+html,
+body,
+#__next {          /* Next.js mounts here */
+  width: 100vw;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* ── Remove default body margin that browsers add ── */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Images never overflow their container ── */
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* ── Remove button/input browser defaults ── */
+button, input, textarea, select {
+  font-family: inherit;
 }
