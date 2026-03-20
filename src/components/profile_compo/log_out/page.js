@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { LogOut, AlertTriangle, Loader2, ShieldCheck, Monitor, Smartphone } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
@@ -36,15 +36,13 @@ function getSessionInfo() {
 
 export default function LogoutTab() {
   const { logout, user } = useAuth();
-  const router = useRouter();
+  const router   = useRouter();
+  const pathname = usePathname();   // current page path
 
   const [confirming, setConfirming] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
 
-  /* useMemo so it only reads navigator once, not on every render */
-  const session = useMemo(() => getSessionInfo(), []);
-
-  /* Format a human-readable login time (session start = page load) */
+  const session   = useMemo(() => getSessionInfo(), []);
   const loginTime = useMemo(() => {
     return new Date().toLocaleString("en-IN", {
       day: "numeric", month: "short", year: "numeric",
@@ -54,10 +52,9 @@ export default function LogoutTab() {
 
   const handleLogout = async () => {
     setLoggingOut(true);
-    // brief delay so the spinner is visible — feels intentional, not instant
     await new Promise((r) => setTimeout(r, 1200));
-    logout();                  // clears user + localStorage via AuthContext
-    router.push("/sign-up");   // redirect to sign-up page
+    logout();                    // clears user + localStorage via AuthContext
+    router.push(pathname);       // stay on the same page (profile will show guest wall)
   };
 
   return (

@@ -4,12 +4,17 @@
 import { useState } from "react";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 
 export default function LoginPage() {
-  const router     = useRouter();
-  const { login }  = useAuth();
+  const router        = useRouter();
+  const searchParams  = useSearchParams();
+  const { login }     = useAuth();
+
+  /* Where to go after a successful login.
+     Defaults to / (same-page feel) if no ?redirect= param is present. */
+  const redirectTo = searchParams.get("redirect") ?? "/";
 
   const [email, setEmail]               = useState("");
   const [password, setPassword]         = useState("");
@@ -34,8 +39,8 @@ export default function LoginPage() {
     setLoading(true);
     await new Promise((r) => setTimeout(r, 1600));  // ← replace with real API
     setLoading(false);
-    login({ email, name: email.split("@")[0] });    // ← set global auth state
-    router.push("/profile");                         // ← redirect to profile
+    login({ email, name: email.split("@")[0] });
+    router.push(redirectTo);                         // ← honour redirect param
   };
 
   const handleGoogleLogin = async () => {
@@ -43,7 +48,7 @@ export default function LoginPage() {
     await new Promise((r) => setTimeout(r, 1000));
     setLoading(false);
     login({ email: "googleuser@gmail.com", name: "Google User" });
-    router.push("/profile");
+    router.push(redirectTo);
   };
 
   const handleFacebookLogin = async () => {
@@ -51,7 +56,7 @@ export default function LoginPage() {
     await new Promise((r) => setTimeout(r, 1000));
     setLoading(false);
     login({ email: "fbuser@facebook.com", name: "Facebook User" });
-    router.push("/profile");
+    router.push(redirectTo);
   };
 
   const handleForgotPassword = (e) => {
@@ -128,7 +133,7 @@ export default function LoginPage() {
 
         <div className="flex items-center gap-4 my-7">
           <div className="flex-1 h-px bg-gray-200" />
-          <span className="text-xs text-gray-400 tracking-wide whitespace-nowrap">Or Login with</span>
+          <span className="text-xs text-gray-400 tracking-wide whitespace-nowrap">Or log in with</span>
           <div className="flex-1 h-px bg-gray-200" />
         </div>
 
@@ -142,7 +147,7 @@ export default function LoginPage() {
             <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
             <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
           </svg>
-          Sign up with Google
+          Log in with Google
         </button>
 
         <button type="button" onClick={handleFacebookLogin}
@@ -152,7 +157,7 @@ export default function LoginPage() {
           <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
             <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.791-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.874v2.25h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z" fill="#1877F2"/>
           </svg>
-          Sign up with Facebook
+          Log in with Facebook
         </button>
       </div>
 

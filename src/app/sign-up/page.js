@@ -3,13 +3,18 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff, User, Mail, Lock, Check } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
 export default function SignUpPage() {
-  const router    = useRouter();
-  const { login } = useAuth();
+  const router       = useRouter();
+  const searchParams = useSearchParams();
+  const { login }    = useAuth();
+
+  /* Where to go after a successful sign-up.
+     Defaults to /profile if no ?redirect= param is present. */
+  const redirectTo = searchParams.get("redirect") ?? "/profile";
 
   const [form, setForm]         = useState({ name: "", email: "", password: "" });
   const [showPass, setShowPass] = useState(false);
@@ -40,10 +45,8 @@ export default function SignUpPage() {
     await new Promise((r) => setTimeout(r, 1400));   // ← replace with real API
     setLoading(false);
     setSubmitted(true);
-
-    // ── Auto-login after sign up + redirect after short success screen ──
     login({ name: form.name, email: form.email });
-    setTimeout(() => router.push("/profile"), 1800);
+    setTimeout(() => router.push(redirectTo), 1800); // ← honour redirect param
   };
 
   const handleGoogleSignup = async () => {
@@ -51,7 +54,7 @@ export default function SignUpPage() {
     await new Promise((r) => setTimeout(r, 1000));
     setLoading(false);
     login({ email: "googleuser@gmail.com", name: "Google User" });
-    router.push("/profile");
+    router.push(redirectTo);
   };
 
   const handleFacebookSignup = async () => {
@@ -59,7 +62,7 @@ export default function SignUpPage() {
     await new Promise((r) => setTimeout(r, 1000));
     setLoading(false);
     login({ email: "fbuser@facebook.com", name: "Facebook User" });
-    router.push("/profile");
+    router.push(redirectTo);
   };
 
   return (

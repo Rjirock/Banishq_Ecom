@@ -57,11 +57,9 @@ export default function MainFooter() {
               {[
                 { href: "/",             label: "Home"         },
                 { href: "/about",        label: "About Us"     },
-                { href: "/services",     label: "Our Services" },
                 { href: "/gallery",      label: "Gallery"      },
-                { href: "/testimonials", label: "Testimonials" },
                 { href: "/contact",      label: "Contact Us"   },
-                { href: "/faq",          label: "FAQs"         },
+              
               ].map(({ href, label }) => (
                 <li key={href}>
                   <Link
