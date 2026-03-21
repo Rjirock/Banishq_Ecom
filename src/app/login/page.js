@@ -202,18 +202,3 @@ function LoginForm() {
     </>
   );
 }
-
-// ─── Default export: NO hooks, only Suspense wrapper ─────────────────────────
-export default function LoginPage() {
-  return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-[#f7f7f5] px-4 py-10">
-      <Suspense fallback={
-        <div className="flex items-center justify-center py-20">
-          <Loader2 size={28} className="animate-spin text-gray-400" />
-        </div>
-      }>
-        <LoginForm />
-      </Suspense>
-    </div>
-  );
-}
