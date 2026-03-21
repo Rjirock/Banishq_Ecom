@@ -1,4 +1,3 @@
-// app/login/page.jsx
 "use client";
 
 export const dynamic = "force-dynamic";
@@ -9,7 +8,6 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 
-// ─── Inner component: all logic lives here ────────────────────────────────────
 function LoginForm() {
   const router       = useRouter();
   const searchParams = useSearchParams();
@@ -88,7 +86,8 @@ function LoginForm() {
         <form onSubmit={handleLogin} noValidate>
           {/* Email */}
           <div className="mb-5">
-            <label htmlFor="email" className="block text-[13.5px] font-medium text-gray-700 mb-1.5">
+            <label htmlFor="email"
+              className="block text-[13.5px] font-medium text-gray-700 mb-1.5">
               Email Address:
             </label>
             <input
@@ -107,13 +106,17 @@ function LoginForm() {
 
           {/* Password */}
           <div className="mb-1">
-            <label htmlFor="password" className="block text-[13.5px] font-medium text-gray-700 mb-1.5">
+            <label htmlFor="password"
+              className="block text-[13.5px] font-medium text-gray-700 mb-1.5">
               Password:
             </label>
             <div className="relative">
               <input
-                id="password" type={showPassword ? "text" : "password"}
-                placeholder="Enter Password" value={password} autoComplete="current-password"
+                id="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Enter Password"
+                value={password}
+                autoComplete="current-password"
                 onChange={(e) => { setPassword(e.target.value); setErrors((p) => ({ ...p, password: "" })); }}
                 className={`w-full px-4 py-3 pr-11 rounded-xl border text-sm text-gray-900
                   placeholder:text-gray-300 outline-none bg-white transition-all duration-200
@@ -121,7 +124,9 @@ function LoginForm() {
                   ${errors.password ? "border-red-400 ring-2 ring-red-400/10" : "border-gray-200"}`}
               />
               <button
-                type="button" onClick={() => setShowPassword((v) => !v)} tabIndex={-1}
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                tabIndex={-1}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1">
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
@@ -130,26 +135,31 @@ function LoginForm() {
               <p className="mt-1.5 text-xs text-red-500 animate-[shake_0.3s_ease]">{errors.password}</p>
             )}
             <button
-              type="button" onClick={handleForgotPassword}
+              type="button"
+              onClick={handleForgotPassword}
               className="mt-2 block w-full text-right text-[12.5px] text-[#c4924a] hover:text-[#a07030] hover:underline transition-colors">
               Forgot Password?
             </button>
           </div>
 
           <button
-            type="submit" disabled={loading}
+            type="submit"
+            disabled={loading}
             className="mt-6 w-full flex items-center justify-center gap-2 bg-gray-900 hover:bg-gray-800
                        text-white text-[13px] font-medium tracking-[0.12em] uppercase rounded-xl py-3.5
                        shadow-[0_2px_12px_rgba(0,0,0,0.12)] hover:-translate-y-0.5
                        hover:shadow-[0_4px_20px_rgba(0,0,0,0.18)] active:translate-y-0
                        disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-200">
-            {loading ? <><Loader2 size={16} className="animate-spin" /> Signing in…</> : "LOGIN"}
+            {loading
+              ? <><Loader2 size={16} className="animate-spin" /> Signing in…</>
+              : "LOGIN"}
           </button>
         </form>
 
         <p className="text-center text-[13px] text-gray-400 font-light mt-5">
-          Don't have an account?{" "}
-          <Link href="/sign-up" className="text-gray-900 font-medium border-b border-gray-400/40 pb-px hover:border-gray-900 transition-colors">
+          Don&apos;t have an account?{" "}
+          <Link href="/sign-up"
+            className="text-gray-900 font-medium border-b border-gray-400/40 pb-px hover:border-gray-900 transition-colors">
             Create Account
           </Link>
         </p>
@@ -162,7 +172,8 @@ function LoginForm() {
 
         {/* Google */}
         <button
-          type="button" onClick={handleGoogleLogin}
+          type="button"
+          onClick={handleGoogleLogin}
           className="w-full flex items-center justify-center gap-3 border border-gray-200 rounded-xl py-3 px-5 mb-3
                      text-sm text-gray-700 bg-white hover:border-gray-400 hover:bg-gray-50 hover:-translate-y-0.5
                      hover:shadow-[0_3px_14px_rgba(0,0,0,0.07)] active:translate-y-0 transition-all duration-200">
@@ -177,7 +188,8 @@ function LoginForm() {
 
         {/* Facebook */}
         <button
-          type="button" onClick={handleFacebookLogin}
+          type="button"
+          onClick={handleFacebookLogin}
           className="w-full flex items-center justify-center gap-3 border border-gray-200 rounded-xl py-3 px-5
                      text-sm text-gray-700 bg-white hover:border-gray-400 hover:bg-gray-50 hover:-translate-y-0.5
                      hover:shadow-[0_3px_14px_rgba(0,0,0,0.07)] active:translate-y-0 transition-all duration-200">
@@ -191,7 +203,7 @@ function LoginForm() {
   );
 }
 
-// ─── Page shell: only this is exported, Suspense wraps everything ─────────────
+// ─── Default export: NO hooks, only Suspense wrapper ─────────────────────────
 export default function LoginPage() {
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-[#f7f7f5] px-4 py-10">
