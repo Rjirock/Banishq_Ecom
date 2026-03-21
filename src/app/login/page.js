@@ -1,6 +1,8 @@
 // app/login/page.jsx
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useState } from "react";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import Link from "next/link";
