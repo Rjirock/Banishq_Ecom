@@ -174,19 +174,10 @@ export default function SettingsPage({ settings, onSave }) {
           label="WhatsApp Alerts"
           description="Receive admin alerts via WhatsApp"
         />
-        <div style={{ marginTop: 14 }}>
-          <label style={labelStyle}>Low Stock Threshold (units)</label>
-          <input
-            type="number"
-            value={form.notifications.lowStockThreshold}
-            onChange={e => set("notifications", "lowStockThreshold", Number(e.target.value))}
-            style={{ ...inputStyle, maxWidth: 160 }}
-          />
-        </div>
       </SettingsSection>
 
       {/* ── Promo / Coupon ── */}
-      <SettingsSection icon={Tag} title="Promotions & Coupons">
+      <SettingsSection icon={Tag} title="Welecome Coupun Code">
         <Toggle
           value={form.promo.showPromoBanner}
           onChange={v => set("promo", "showPromoBanner", v)}

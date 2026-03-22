@@ -24,7 +24,7 @@ export const INITIAL_SETTINGS = {
       smsOnOrderShipped: false,
       whatsappAlerts: true,
     },
-    promo: {
+    welecomecode: {
       activeCoupon: "SAVE10",
       discountPercent: 10,
       couponExpiry: "2024-12-31",

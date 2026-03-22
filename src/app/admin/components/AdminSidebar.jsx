@@ -4,7 +4,7 @@
 import {
   LayoutDashboard, ShoppingBag, Package, Image,
   Star, BookImage, LogOut, Sparkles,
-  Users, Settings, ChevronLeft, ChevronRight,
+  Users, Settings, Tag, ShieldCheck, ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { C } from "../data/theme";
 
@@ -16,6 +16,8 @@ const NAV_ITEMS = [
   { id: "banners",   label: "Banners",           icon: Image           },
   { id: "featured",  label: "Featured Products", icon: Star            },
   { id: "gallery",   label: "Gallery",           icon: BookImage       },
+  { id: "coupons",   label: "Coupons",            icon: Tag             },
+  { id: "access",    label: "Admin Access",       icon: ShieldCheck     },
   { id: "settings",  label: "Settings",          icon: Settings        },
 ];
 

@@ -14,6 +14,8 @@ import FeaturedPage   from "./pages/FeaturedPage";
 import GalleryPage    from "./pages/GalleryPage";
 import CustomersPage  from "./pages/CustomersPage";
 import SettingsPage   from "./pages/SettingsPage";
+import CouponsPage    from "./pages/Couponspage";
+import AdminAccessPage from "./pages/AdminAccessPage";
 
 import { MOCK_ORDERS }      from "./data/orders.data";
 import { MOCK_PRODUCTS }    from "./data/products.data";
@@ -21,6 +23,7 @@ import { INITIAL_BANNERS }  from "./data/banners.data";
 import { INITIAL_GALLERY }  from "./data/gallery.data";
 import { MOCK_CUSTOMERS }   from "./data/customers.data";
 import { INITIAL_SETTINGS } from "./data/settings.data";
+import { INITIAL_COUPONS }  from "./data/coupons.data";
 
 /* ── Clear admin cookie on logout ── */
 function clearAdminCookie() {
@@ -37,10 +40,16 @@ export default function AdminPage() {
   const [gallery,   setGallery]   = useState(INITIAL_GALLERY);
   const [customers, setCustomers] = useState(MOCK_CUSTOMERS);
   const [settings,  setSettings]  = useState(INITIAL_SETTINGS);
+  const [coupons,   setCoupons]   = useState(INITIAL_COUPONS);
 
   /* ── Handlers ── */
-  const handleUpdateOrder = (id, status, payment) => {
-    setOrders(prev => prev.map(o => o.id === id ? { ...o, status, payment } : o));
+  const handleUpdateOrder = (id, status, payment, shipmentData) => {
+    setOrders(prev => prev.map(o =>
+      o.id === id
+        ? { ...o, status, payment, ...(shipmentData ? { shipmentData } : {}) }
+        : o
+    ));
+    // TODO: await api.patch(`/orders/${id}`, { status, payment, shipmentData })
   };
 
   const handleSaveProduct = (cat, form) => {
@@ -61,8 +70,10 @@ export default function AdminPage() {
     }));
   };
 
-  const handleSaveBanner = (key, url) => {
-    setBanners(prev => ({ ...prev, [key]: { ...prev[key], current: url } }));
+  const handleSaveBanner = (key, imageData) => {
+    // imageData = base64 data URL from device upload, or empty string to remove
+    setBanners(prev => ({ ...prev, [key]: { ...prev[key], current: imageData } }));
+    // TODO: upload to storage (S3/Cloudinary) and save returned URL instead of base64
   };
 
   const handleAddImage    = (form) => setGallery(prev => [...prev, { ...form, id: `g-${Date.now()}` }]);
@@ -71,6 +82,12 @@ export default function AdminPage() {
   const handleUpdateCustomerStatus = (id, status) => {
     setCustomers(prev => prev.map(c => c.id === id ? { ...c, status } : c));
   };
+
+  /* Coupons */
+  const handleAddCoupon    = (c) => setCoupons(prev => [...prev, c]);
+  const handleUpdateCoupon = (c) => setCoupons(prev => prev.map(x => x.id === c.id ? c : x));
+  const handleDeleteCoupon = (id) => setCoupons(prev => prev.filter(c => c.id !== id));
+  const handleToggleCoupon = (id) => setCoupons(prev => prev.map(c => c.id === id ? { ...c, active: !c.active } : c));
 
   const handleSaveSettings = (newSettings) => setSettings(newSettings);
 
@@ -89,6 +106,8 @@ export default function AdminPage() {
     featured:  "Featured Products",
     gallery:   "Gallery",
     settings:  "Settings",
+    coupons:   "Coupons",
+    access:    "Admin Access",
   };
 
   const renderContent = () => {
@@ -110,6 +129,8 @@ export default function AdminPage() {
         <GalleryPage images={gallery} onAddImage={handleAddImage} onDeleteImage={handleDeleteImage} />
       );
       case "settings":  return <SettingsPage settings={settings} onSave={handleSaveSettings} />;
+      case "coupons":   return <CouponsPage coupons={coupons} onAddCoupon={handleAddCoupon} onUpdateCoupon={handleUpdateCoupon} onDeleteCoupon={handleDeleteCoupon} onToggleCoupon={handleToggleCoupon} />;
+      case "access":    return <AdminAccessPage />;
       default: return null;
     }
   };

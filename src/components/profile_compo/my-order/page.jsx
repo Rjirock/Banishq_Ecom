@@ -6,50 +6,125 @@ import { useRouter } from "next/navigation";
 import {
   MapPin, X, Package, CheckCircle2,
   Truck, Clock, AlertCircle, ChevronDown,
+  ShoppingBag, Eye, Tag, CreditCard,
 } from "lucide-react";
 import { ORDERS } from "../../../app/data/orders/order";
 
-/* ── Status config ───────────────────────────── */
+/* ─────────────────────────────────────────────
+   STATUS CONFIG
+───────────────────────────────────────────── */
 const STATUS = {
-  "In-Transit": { color: "text-[#2a9d8f]", bg: "bg-[#e8f8f6]", dot: "bg-[#2a9d8f]", icon: Truck       },
-  "Delivered":  { color: "text-green-600",  bg: "bg-green-50",  dot: "bg-green-500",  icon: CheckCircle2 },
-  "Processing": { color: "text-blue-500",   bg: "bg-blue-50",   dot: "bg-blue-400",   icon: Clock        },
-  "Cancelled":  { color: "text-red-500",    bg: "bg-red-50",    dot: "bg-red-400",    icon: AlertCircle  },
+  "In-Transit": {
+    color: "#0e9b8a", bg: "rgba(14,155,138,.1)",
+    border: "rgba(14,155,138,.25)", icon: Truck,
+  },
+  "Delivered": {
+    color: "#16a34a", bg: "rgba(22,163,74,.1)",
+    border: "rgba(22,163,74,.25)", icon: CheckCircle2,
+  },
+  "Processing": {
+    color: "#2563eb", bg: "rgba(37,99,235,.1)",
+    border: "rgba(37,99,235,.25)", icon: Clock,
+  },
+  "Cancelled": {
+    color: "#dc2626", bg: "rgba(220,38,38,.1)",
+    border: "rgba(220,38,38,.25)", icon: X,
+  },
 };
 
-/* ── Cancel Modal ────────────────────────────── */
+function StatusBadge({ status }) {
+  const s = STATUS[status] || STATUS["In-Transit"];
+  const Icon = s.icon;
+  return (
+    <span style={{
+      display: "inline-flex", alignItems: "center", gap: 5,
+      fontSize: 11.5, fontWeight: 700,
+      color: s.color, background: s.bg,
+      border: `1px solid ${s.border}`,
+      padding: "4px 10px", borderRadius: 99,
+      letterSpacing: ".03em", whiteSpace: "nowrap",
+    }}>
+      <Icon size={11} strokeWidth={2.5} />
+      {status}
+    </span>
+  );
+}
+
+/* ─────────────────────────────────────────────
+   CANCEL MODAL
+───────────────────────────────────────────── */
 function CancelModal({ orderId, onConfirm, onClose }) {
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4"
-      style={{ animation: "fadeIn .2s ease both" }}
-    >
-      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm"
-           style={{ animation: "slideUp .3s ease both" }}>
-        <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
-          <X size={22} className="text-red-500" />
+    <div style={{
+      position: "fixed", inset: 0, zIndex: 9999,
+      background: "rgba(26,18,5,.45)", backdropFilter: "blur(6px)",
+      display: "flex", alignItems: "center", justifyContent: "center", padding: 20,
+      animation: "modalFade .2s ease both",
+    }}>
+      <div style={{
+        background: "#fff", borderRadius: 22,
+        padding: "34px 32px 28px",
+        width: "100%", maxWidth: 380,
+        boxShadow: "0 24px 60px rgba(26,18,5,.18)",
+        border: "1.5px solid #EDE5D8",
+        animation: "modalSlide .3s cubic-bezier(.22,1,.36,1) both",
+        textAlign: "center",
+      }}>
+        {/* Warning icon */}
+        <div style={{
+          width: 56, height: 56, borderRadius: "50%", margin: "0 auto 18px",
+          background: "#FFF1F1", border: "2px solid #FECACA",
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}>
+          <AlertCircle size={26} color="#dc2626" strokeWidth={2} />
         </div>
-        <h3 className="text-[17px] font-semibold text-center text-gray-900 mb-2"
-            style={{ fontFamily: "'Playfair Display', serif" }}>
+
+        <h3 style={{
+          fontFamily: "'Cormorant Garamond', serif",
+          fontSize: 22, fontWeight: 700, color: "#1A1205", margin: "0 0 8px",
+        }}>
           Cancel Order?
         </h3>
-        <p className="text-sm text-gray-400 text-center mb-6 leading-relaxed">
-          Are you sure you want to cancel order{" "}
-          <span className="font-semibold text-gray-600">#{orderId}</span>?
-          This action cannot be undone.
+        <p style={{ fontSize: 13.5, color: "#A89272", margin: "0 0 6px", lineHeight: 1.65 }}>
+          Are you sure you want to cancel order
         </p>
-        <div className="flex gap-3">
+        <p style={{
+          fontSize: 15, fontWeight: 800, color: "#C9A84C",
+          margin: "0 0 22px", letterSpacing: ".04em",
+        }}>
+          #{orderId}
+        </p>
+        <p style={{ fontSize: 12.5, color: "#B8A88A", margin: "0 0 24px" }}>
+          This action cannot be undone. Any payment will be refunded within 5–7 business days.
+        </p>
+
+        <div style={{ display: "flex", gap: 10 }}>
           <button
             onClick={onClose}
-            className="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-600
-                       text-sm font-medium hover:bg-gray-50 transition-all duration-150"
+            style={{
+              flex: 1, padding: "12px 0", borderRadius: 12,
+              border: "1.5px solid #EDE5D8", background: "#FDFAF6",
+              color: "#5A4A35", fontSize: 13.5, fontWeight: 700,
+              cursor: "pointer", transition: "all .2s",
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+            }}
+            onMouseEnter={e => e.currentTarget.style.background = "#F0EBE0"}
+            onMouseLeave={e => e.currentTarget.style.background = "#FDFAF6"}
           >
             Keep Order
           </button>
           <button
             onClick={onConfirm}
-            className="flex-1 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white
-                       text-sm font-medium transition-all duration-150 shadow-sm"
+            style={{
+              flex: 1, padding: "12px 0", borderRadius: 12,
+              border: "none", background: "#dc2626",
+              color: "#fff", fontSize: 13.5, fontWeight: 700,
+              cursor: "pointer", transition: "all .2s",
+              boxShadow: "0 4px 14px rgba(220,38,38,.25)",
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+            }}
+            onMouseEnter={e => e.currentTarget.style.background = "#b91c1c"}
+            onMouseLeave={e => e.currentTarget.style.background = "#dc2626"}
           >
             Yes, Cancel
           </button>
@@ -59,15 +134,18 @@ function CancelModal({ orderId, onConfirm, onClose }) {
   );
 }
 
-/* ── Single Order Card ───────────────────────── */
+/* ─────────────────────────────────────────────
+   ORDER CARD
+───────────────────────────────────────────── */
 function OrderCard({ order }) {
   const router = useRouter();
-  const [open,       setOpen]       = useState(true);
+  const [open,       setOpen]       = useState(false);
   const [showCancel, setShowCancel] = useState(false);
   const [cancelled,  setCancelled]  = useState(false);
 
   const currentStatus = cancelled ? "Cancelled" : order.orderStatus;
   const st = STATUS[currentStatus] || STATUS["In-Transit"];
+  const Icon = st.icon;
 
   return (
     <>
@@ -79,105 +157,183 @@ function OrderCard({ order }) {
         />
       )}
 
-      <div
-        className={`bg-white rounded-2xl shadow-[0_2px_16px_rgba(0,0,0,0.06)]
-                    overflow-hidden mb-5 border border-gray-100
-                    transition-opacity duration-300 ${cancelled ? "opacity-60" : ""}`}
-      >
-        {/* ── Header ── */}
-        <div className="flex flex-wrap items-start justify-between gap-3 px-5 py-4 border-b border-gray-100">
+      <div style={{
+        background: "#fff",
+        border: `1.5px solid ${cancelled ? "#FECACA" : "#EDE5D8"}`,
+        borderRadius: 20,
+        marginBottom: 16,
+        overflow: "hidden",
+        boxShadow: "0 2px 16px rgba(26,18,5,.06)",
+        opacity: cancelled ? 0.75 : 1,
+        transition: "opacity .3s, border-color .3s",
+      }}>
+
+        {/* ── Gold top strip for non-cancelled ── */}
+        {!cancelled && (
+          <div style={{
+            height: 3,
+            background: "linear-gradient(90deg, #C9A84C, #E8C96A, #C9A84C)",
+          }} />
+        )}
+
+        {/* ── Header row ── */}
+        <div style={{
+          display: "flex", flexWrap: "wrap", alignItems: "center",
+          justifyContent: "space-between", gap: 12,
+          padding: "16px 20px", borderBottom: "1px solid #F0EAE0",
+          background: "#FDFAF6",
+        }}>
+          {/* Left — order info */}
           <div>
-            <p className="text-[12px] text-gray-400 mb-0.5">
-              Order{" "}
-              <span className="text-[#b8964e] font-semibold text-[14px]">
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
+              <ShoppingBag size={13} color="#C9A84C" />
+              <span style={{ fontSize: 11, color: "#A89272", fontWeight: 600, letterSpacing: ".1em" }}>
+                ORDER
+              </span>
+              <span style={{ fontSize: 14, fontWeight: 800, color: "#C9A84C", letterSpacing: ".04em" }}>
                 #{order.id}
               </span>
+            </div>
+            <p style={{ fontSize: 11.5, color: "#A89272", margin: 0 }}>
+              Placed: <strong style={{ color: "#5A4A35" }}>{order.placed}</strong>
             </p>
-            <p className="text-[11.5px] text-gray-400">Placed: {order.placed}</p>
           </div>
 
-          <button
-            onClick={() => router.push(`/track-order/${order.id}`)}
-            disabled={cancelled}
-            className="flex items-center gap-1.5 bg-[#7a6030] hover:bg-[#5e4a25]
-                       text-white text-[11px] font-medium tracking-wide uppercase
-                       px-4 py-2 rounded-xl shadow-[0_2px_10px_rgba(122,96,48,0.25)]
-                       hover:-translate-y-0.5 active:translate-y-0
-                       disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200"
-          >
-            <MapPin size={12} /> Track Order
-          </button>
-        </div>
+          {/* Right — status + actions */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+            <StatusBadge status={currentStatus} />
 
-        {/* ── Table header ── */}
-        <div className="grid grid-cols-[1fr_auto_auto] bg-[#c9a84c]/10 border-b border-[#e8ddd0]">
-          <button
-            onClick={() => setOpen((v) => !v)}
-            className="flex items-center gap-2 px-5 py-2.5 text-left"
-          >
-            <span className="text-[11px] font-semibold text-[#7a5c20] uppercase tracking-widest">
-              Product Name
-            </span>
-            <span className={`text-[#b8964e] transition-transform duration-300 ${open ? "rotate-180" : ""}`}>
-              <ChevronDown size={14} />
-            </span>
-            <span className="text-[10px] text-[#b8964e]/60 ml-auto hidden sm:inline">
-              {open ? "Collapse" : `${order.products.length} items`}
-            </span>
-          </button>
-          <div className="px-5 py-2.5 text-[11px] font-semibold text-[#7a5c20] uppercase tracking-widest">
-            Status
-          </div>
-          <div className="px-5 py-2.5 text-[11px] font-semibold text-[#7a5c20] uppercase tracking-widest hidden md:block">
-            Expected By
-          </div>
-        </div>
+            {/* View Details */}
+            <button
+              onClick={() => router.push(`/my-order/${order.shipment?.trackingNumber || order.id}`)}
+              style={{
+                display: "flex", alignItems: "center", gap: 6,
+                padding: "8px 14px", borderRadius: 10,
+                border: "1.5px solid #EDE5D8", background: "#fff",
+                color: "#5A4A35", fontSize: 12, fontWeight: 700,
+                cursor: "pointer", transition: "all .2s",
+                letterSpacing: ".04em",
+              }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = "#C9A84C"; e.currentTarget.style.color = "#C9A84C"; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = "#EDE5D8"; e.currentTarget.style.color = "#5A4A35"; }}
+            >
+              <Eye size={12} /> View Details
+            </button>
 
-        {/* ── Products ── */}
-        <div
-          className="overflow-hidden transition-all duration-500 ease-in-out"
-          style={{ maxHeight: open ? `${order.products.length * 110}px` : "0px" }}
-        >
-          {order.products.map((p, i) => {
-            const pst = STATUS[cancelled ? "Cancelled" : p.status] || STATUS["In-Transit"];
-            return (
-              <div
-                key={p.id}
-                className="grid grid-cols-[1fr_auto_auto] items-center px-5 py-3.5
-                           border-b border-gray-100 last:border-b-0
-                           hover:bg-gray-50/60 transition-colors duration-150"
-                style={{ animation: "fadeSlide .3s ease both", animationDelay: `${i * 0.04}s` }}
+            {/* Track */}
+            {!cancelled && (
+              <button
+                onClick={() => router.push(`/track-order/${order.id}`)}
+                style={{
+                  display: "flex", alignItems: "center", gap: 6,
+                  padding: "8px 14px", borderRadius: 10, border: "none",
+                  background: "linear-gradient(120deg,#1A1205,#3a2408)",
+                  color: "#F5EDE0", fontSize: 12, fontWeight: 700,
+                  cursor: "pointer", transition: "all .2s",
+                  letterSpacing: ".04em",
+                  boxShadow: "0 3px 10px rgba(26,18,5,.2)",
+                }}
+                onMouseEnter={e => e.currentTarget.style.transform = "translateY(-1px)"}
+                onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}
               >
-                {/* Product info */}
-                <div className="flex items-center gap-3 pr-3">
-                  <div className="w-12 h-14 rounded-xl overflow-hidden bg-gray-100 shrink-0 ring-1 ring-gray-200">
-                    <img src={p.image} alt={p.name} className="w-full h-full object-cover" />
-                  </div>
-                  <div>
-                    <p className="text-[13px] font-medium text-gray-800 leading-snug">{p.name}</p>
-                    <p className="text-[11px] text-gray-400 mt-0.5">{p.brand}</p>
-                    <p className="text-[11px] text-gray-500 mt-1">
-                      <span className="text-gray-400">Size:</span> {p.size}&nbsp;&nbsp;
-                      <span className="text-gray-400">Qty:</span> {p.qty}&nbsp;&nbsp;
-                      <span className="font-semibold text-gray-700">
-                        ₹{p.price.toLocaleString()}
-                      </span>
-                    </p>
+                <MapPin size={12} /> Track Order
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* ── Quick info strip ── */}
+        <div style={{
+          display: "flex", flexWrap: "wrap", gap: 0,
+          borderBottom: "1px solid #F0EAE0",
+        }}>
+          {[
+            { icon: Tag,        label: "Tracking",  value: order.shipment?.trackingNumber || "Pending" },
+            { icon: CreditCard, label: "Total",     value: `₹${order.total.toLocaleString("en-IN")}` },
+            { icon: Package,    label: "Items",     value: `${order.products.length} item${order.products.length > 1 ? "s" : ""}` },
+          ].map((item, i) => (
+            <div key={i} style={{
+              display: "flex", alignItems: "center", gap: 8,
+              padding: "10px 20px", flex: 1, minWidth: 140,
+              borderRight: i < 2 ? "1px solid #F0EAE0" : "none",
+            }}>
+              <item.icon size={13} color="#C9A84C" />
+              <div>
+                <p style={{ margin: 0, fontSize: 10, color: "#A89272", fontWeight: 600, letterSpacing: ".1em", textTransform: "uppercase" }}>
+                  {item.label}
+                </p>
+                <p style={{ margin: 0, fontSize: 12.5, fontWeight: 700, color: "#1A1205" }}>
+                  {item.value}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* ── Products dropdown toggle ── */}
+        <button
+          onClick={() => setOpen(v => !v)}
+          style={{
+            width: "100%", padding: "11px 20px",
+            display: "flex", alignItems: "center", gap: 8,
+            background: open ? "#FDF9F0" : "transparent",
+            border: "none", cursor: "pointer",
+            borderBottom: open ? "1px solid #F0EAE0" : "none",
+            transition: "background .2s",
+          }}
+        >
+          <Package size={13} color="#C9A84C" />
+          <span style={{ fontSize: 11.5, fontWeight: 700, color: "#7A6A50",
+            letterSpacing: ".1em", textTransform: "uppercase", flex: 1, textAlign: "left" }}>
+            {open ? "Hide Products" : `Show ${order.products.length} Product${order.products.length > 1 ? "s" : ""}`}
+          </span>
+          <ChevronDown size={14} color="#C9A84C"
+            style={{ transform: open ? "rotate(180deg)" : "rotate(0)", transition: "transform .3s" }} />
+        </button>
+
+        {/* ── Products list ── */}
+        <div style={{
+          maxHeight: open ? `${order.products.length * 88}px` : "0px",
+          overflow: "hidden",
+          transition: "max-height .45s cubic-bezier(.4,0,.2,1)",
+        }}>
+          {order.products.map((p, i) => {
+            const pSt = STATUS[cancelled ? "Cancelled" : p.status] || STATUS["In-Transit"];
+            return (
+              <div key={p.id} style={{
+                display: "flex", alignItems: "center", gap: 12,
+                padding: "12px 20px",
+                borderBottom: i < order.products.length - 1 ? "1px solid #F7F3EE" : "none",
+                background: "#fff",
+                animation: open ? `prodFadeIn .3s ease ${i * 0.05}s both` : "none",
+              }}>
+                {/* Image */}
+                <img src={p.image} alt={p.name} style={{
+                  width: 48, height: 54, borderRadius: 10,
+                  objectFit: "cover", flexShrink: 0,
+                  border: "1px solid #EDE5D8",
+                }} />
+                {/* Info */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ margin: "0 0 2px", fontSize: 13, fontWeight: 700, color: "#1A1205",
+                    overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {p.name}
+                  </p>
+                  <p style={{ margin: "0 0 4px", fontSize: 11, color: "#A89272" }}>{p.brand}</p>
+                  <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                    {[`Size: ${p.size}`, `Qty: ${p.qty}`, `₹${p.price.toLocaleString("en-IN")}`].map((t, j) => (
+                      <span key={j} style={{
+                        fontSize: 11, color: "#7A6A50", fontWeight: 600,
+                        background: "#F7F3EE", padding: "2px 8px", borderRadius: 99,
+                      }}>{t}</span>
+                    ))}
                   </div>
                 </div>
-
                 {/* Status */}
-                <div className="px-2 md:px-5 min-w-[100px]">
-                  <span className={`inline-flex items-center gap-1.5 text-[11px] font-medium
-                                   px-2.5 py-1 rounded-full ${pst.bg} ${pst.color}`}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${pst.dot}`} />
-                    {cancelled ? "Cancelled" : p.status}
-                  </span>
-                </div>
-
-                {/* Delivery */}
-                <div className="px-2 md:px-5 hidden md:block min-w-[110px]">
-                  <p className={`text-[12px] font-medium ${cancelled ? "text-gray-400 line-through" : "text-gray-700"}`}>
+                <div style={{ flexShrink: 0 }}>
+                  <StatusBadge status={cancelled ? "Cancelled" : p.status} />
+                  <p style={{ margin: "4px 0 0", fontSize: 10.5, color: "#B8A88A",
+                    textAlign: "right", textDecoration: cancelled ? "line-through" : "none" }}>
                     {p.delivery}
                   </p>
                 </div>
@@ -187,28 +343,40 @@ function OrderCard({ order }) {
         </div>
 
         {/* ── Footer ── */}
-        <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3.5
-                        bg-gray-50/80 border-t border-gray-100">
-          <div className="flex items-center gap-4">
+        <div style={{
+          display: "flex", flexWrap: "wrap", alignItems: "center",
+          justifyContent: "space-between", gap: 10,
+          padding: "12px 20px",
+          background: "#FDFAF6", borderTop: "1px solid #F0EAE0",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             {!cancelled ? (
               <button
                 onClick={() => setShowCancel(true)}
-                className="flex items-center gap-1.5 text-[12px] text-gray-500
-                           hover:text-red-500 transition-colors duration-150 font-medium"
+                style={{
+                  display: "flex", alignItems: "center", gap: 5,
+                  fontSize: 12, color: "#A89272", fontWeight: 600,
+                  background: "none", border: "none", cursor: "pointer",
+                  transition: "color .2s", padding: 0,
+                }}
+                onMouseEnter={e => e.currentTarget.style.color = "#dc2626"}
+                onMouseLeave={e => e.currentTarget.style.color = "#A89272"}
               >
                 <X size={13} /> Cancel Order
               </button>
             ) : (
-              <span className="flex items-center gap-1.5 text-[12px] text-red-400 font-medium">
+              <span style={{ display: "flex", alignItems: "center", gap: 5,
+                fontSize: 12, color: "#dc2626", fontWeight: 600 }}>
                 <X size={13} /> Order Cancelled
               </span>
             )}
-            <span className="text-[11px] text-gray-400">
-              Paid via card ···· {order.card}
+            <span style={{ fontSize: 11.5, color: "#C4B49A" }}>
+              Paid via ···· {order.card}
             </span>
           </div>
-          <p className="text-[16px] font-bold text-gray-900">
-            ₹{order.total.toLocaleString()}
+          <p style={{ fontSize: 17, fontWeight: 800, color: "#1A1205", margin: 0,
+            fontFamily: "'Cormorant Garamond', serif" }}>
+            ₹{order.total.toLocaleString("en-IN")}
           </p>
         </div>
       </div>
@@ -216,28 +384,62 @@ function OrderCard({ order }) {
   );
 }
 
-/* ── Tab Component (embedded in ProfilePage) ─ */
+/* ─────────────────────────────────────────────
+   MAIN TAB
+───────────────────────────────────────────── */
 export default function MyOrdersTab() {
   return (
-    <div style={{ animation: "fadeSlide .35s ease both" }}>
-      <h2
-        className="text-xl font-semibold text-gray-900 mb-1"
-        style={{ fontFamily: "'Playfair Display', serif" }}
-      >
-        My Orders
-      </h2>
-      <p className="text-[13px] text-gray-400 mb-6 font-light">
-        Track and manage your recent purchases
-      </p>
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        * { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-font-smoothing: antialiased; }
 
-      {ORDERS.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-gray-400">
-          <Package size={40} className="mb-3 opacity-40" />
-          <p className="text-sm">You have no orders yet.</p>
+        @keyframes modalFade {
+          from { opacity: 0; } to { opacity: 1; }
+        }
+        @keyframes modalSlide {
+          from { opacity: 0; transform: scale(.94) translateY(16px); }
+          to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes prodFadeIn {
+          from { opacity: 0; transform: translateX(-8px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes tabFadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+
+      <div style={{ animation: "tabFadeIn .35s ease both" }}>
+        {/* Heading */}
+        <div style={{ marginBottom: 24 }}>
+          <h2 style={{
+            fontFamily: "'Cormorant Garamond', serif",
+            fontSize: 26, fontWeight: 700, color: "#1A1205",
+            margin: "0 0 4px",
+          }}>
+            My Orders
+          </h2>
+          <p style={{ fontSize: 13.5, color: "#A89272", margin: 0, fontWeight: 400 }}>
+            Track, view details and manage your recent purchases
+          </p>
         </div>
-      ) : (
-        ORDERS.map((order) => <OrderCard key={order.id} order={order} />)
-      )}
-    </div>
+
+        {/* Orders */}
+        {ORDERS.length === 0 ? (
+          <div style={{
+            display: "flex", flexDirection: "column",
+            alignItems: "center", justifyContent: "center",
+            padding: "64px 0", color: "#C4B49A", textAlign: "center",
+          }}>
+            <Package size={44} style={{ marginBottom: 12, opacity: .5 }} />
+            <p style={{ fontSize: 14, fontWeight: 500, margin: 0 }}>You have no orders yet.</p>
+          </div>
+        ) : (
+          ORDERS.map(order => <OrderCard key={order.id} order={order} />)
+        )}
+      </div>
+    </>
   );
 }

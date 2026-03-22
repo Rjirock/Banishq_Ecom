@@ -4,67 +4,150 @@
 import { useParams, useRouter } from "next/navigation";
 import { getOrderById } from "../../data/orders/order";
 import {
-  Phone, Mail, ArrowRight, CheckCircle2,
-  Circle, ChevronLeft, User,
+  Phone, Mail, ArrowRight, ChevronLeft,
+  CheckCircle2, Circle, Clock3, MapPin,
+  User, Home, Briefcase, MapPinOff,
+  Truck, Package, Sparkles, AlertCircle,
 } from "lucide-react";
 
-/* ─── Step Progress Bar ─────────────────────── */
-function ProgressBar({ steps, currentStep }) {
+/* ── Animated Progress Bar ── */
+function ProgressStepper({ steps, currentStep }) {
   return (
-    <div className="relative flex items-start justify-between mt-6 mb-2 px-2">
-      {/* base line */}
-      <div className="absolute top-[18px] left-6 right-6 h-px bg-gray-200 z-0" />
-      {/* filled progress */}
-      <div
-        className="absolute top-[18px] left-6 h-px bg-[#1a1a1a] z-0 transition-all duration-700"
-        style={{ width: `calc(${(currentStep / (steps.length - 1)) * 100}% - 24px)` }}
-      />
+    <div style={{ position: "relative", padding: "8px 0 4px" }}>
+      <style>{`
+        @keyframes glowPulse {
+          0%,100% { box-shadow:0 0 0 0 rgba(201,168,76,0); }
+          50%      { box-shadow:0 0 0 8px rgba(201,168,76,.2); }
+        }
+        @keyframes checkPop {
+          0%   { transform:scale(0) rotate(-20deg); opacity:0; }
+          60%  { transform:scale(1.2) rotate(4deg); }
+          100% { transform:scale(1) rotate(0deg); opacity:1; }
+        }
+        @keyframes lineGrow { from{width:0} to{width:100%} }
+        @keyframes stepFade { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+        .step-done   { animation:checkPop .5s cubic-bezier(.22,1,.36,1) both; }
+        .step-active { animation:glowPulse 2s ease infinite; }
+        .prog-line   { animation:lineGrow .8s ease .2s both; }
+      `}</style>
 
-      {steps.map((step, i) => {
-        const isDone    = step.done;
-        const isCurrent = i === currentStep;
-        return (
-          <div key={i} className="flex flex-col items-center z-10 flex-1">
-            <div className={`w-9 h-9 rounded-full border-2 flex items-center justify-center transition-all duration-300
-              ${isDone    ? "border-[#1a1a1a] bg-[#1a1a1a]"
-               : isCurrent ? "border-[#1a1a1a] bg-white ring-4 ring-[#1a1a1a]/10"
-               : "border-gray-300 bg-white"}`}
-            >
-              {isDone
-                ? <CheckCircle2 size={16} className="text-white" strokeWidth={2.5} />
-                : <Circle size={10} className={isCurrent ? "text-[#1a1a1a]" : "text-gray-300"} fill="currentColor" />
-              }
+      {/* Track line */}
+      <div style={{ position:"absolute", top:28, left:"6%", right:"6%",
+        height:3, borderRadius:99, background:"#EDE5D8", zIndex:0 }} />
+      {/* Gold fill */}
+      <div className="prog-line" style={{
+        position:"absolute", top:28, left:"6%", height:3, borderRadius:99,
+        background:"linear-gradient(90deg,#C9A84C,#E8C96A)",
+        boxShadow:"0 0 10px rgba(201,168,76,.45)", zIndex:1,
+        width: currentStep === 0 ? "0%"
+          : `calc(${(currentStep / (steps.length - 1)) * 88}%)`,
+      }} />
+
+      <div style={{ display:"flex", justifyContent:"space-between",
+        alignItems:"flex-start", position:"relative", zIndex:2 }}>
+        {steps.map((step, i) => {
+          const isDone    = step.done;
+          const isCurrent = i === currentStep && !isDone;
+          return (
+            <div key={i} style={{ display:"flex", flexDirection:"column",
+              alignItems:"center", flex:1,
+              animation:`stepFade .4s ease ${i * 0.1 + 0.1}s both` }}>
+              <div
+                className={isDone ? "step-done" : isCurrent ? "step-active" : ""}
+                style={{
+                  width:44, height:44, borderRadius:"50%",
+                  display:"flex", alignItems:"center", justifyContent:"center",
+                  background: isDone ? "linear-gradient(135deg,#C9A84C,#E8C96A)"
+                    : isCurrent ? "#fff" : "#F7F3EE",
+                  border: isDone ? "none"
+                    : isCurrent ? "2.5px solid #C9A84C"
+                    : "2px solid #DDD0BE",
+                  boxShadow: isDone ? "0 4px 14px rgba(201,168,76,.4)"
+                    : isCurrent ? "0 0 0 5px rgba(201,168,76,.12)" : "none",
+                  animationDelay: isDone ? `${i * 0.12}s` : undefined,
+                }}>
+                {isDone ? (
+                  <CheckCircle2 size={20} color="#fff" strokeWidth={2.5} />
+                ) : isCurrent ? (
+                  <div style={{ width:12, height:12, borderRadius:"50%",
+                    background:"#C9A84C", animation:"glowPulse 2s ease infinite" }} />
+                ) : (
+                  <div style={{ width:10, height:10, borderRadius:"50%", background:"#DDD0BE" }} />
+                )}
+              </div>
+              <p style={{ marginTop:8, fontSize:11.5, fontWeight: isDone||isCurrent ? 700 : 500,
+                color: isDone ? "#1A1205" : isCurrent ? "#C9A84C" : "#B8A88A",
+                textAlign:"center", lineHeight:1.35 }}>
+                {step.label}
+              </p>
+              {step.date && (
+                <p style={{ fontSize:10, color: isDone ? "#C9A84C" : "#C4B49A",
+                  textAlign:"center", marginTop:2, fontWeight:600 }}>
+                  {step.date}
+                </p>
+              )}
+              {step.location && (
+                <p style={{ fontSize:10, color:"#C4B49A", textAlign:"center", lineHeight:1.3, marginTop:1 }}>
+                  {step.location}
+                </p>
+              )}
             </div>
-            <p className={`mt-2 text-[12px] font-semibold text-center leading-snug
-              ${isDone || isCurrent ? "text-gray-900" : "text-gray-400"}`}>
-              {step.label}
-            </p>
-            {step.date && (
-              <p className="text-[10.5px] text-[#b8964e] mt-0.5 text-center">{step.date}</p>
-            )}
-            {step.location && (
-              <p className="text-[10.5px] text-gray-400 text-center leading-tight">{step.location}</p>
-            )}
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 }
 
-/* ─── Info row ──────────────────────────────── */
-function InfoRow({ label, value, bold = false }) {
+/* ── Address type icon ── */
+function AddrIcon({ type }) {
+  if (type === "Work")  return <Briefcase size={13} color="#C9A84C" />;
+  if (type === "Other") return <MapPinOff  size={13} color="#C9A84C" />;
+  return <Home size={13} color="#C9A84C" />;
+}
+
+/* ── Info field ── */
+function Field({ label, value, gold, link }) {
   return (
-    <div className="flex items-start justify-between gap-4 py-2.5 border-b border-gray-100 last:border-b-0">
-      <span className="text-[12.5px] text-gray-500 shrink-0 font-medium">{label}</span>
-      <span className={`text-[12.5px] text-right ${bold ? "font-bold text-gray-800" : "text-gray-700 font-medium"}`}>
-        {value}
-      </span>
+    <div>
+      <p style={{ margin:"0 0 2px", fontSize:10, fontWeight:700,
+        letterSpacing:".12em", textTransform:"uppercase", color:"#B8A88A" }}>
+        {label}
+      </p>
+      {link
+        ? <a href={link} style={{ fontSize:13.5, fontWeight:700, color:"#C9A84C", textDecoration:"none" }}>
+            {value}
+          </a>
+        : <p style={{ margin:0, fontSize:13.5, fontWeight:700,
+            color: gold ? "#C9A84C" : "#1A1205" }}>{value}</p>
+      }
     </div>
   );
 }
 
-/* ─── Page ──────────────────────────────────── */
+/* ── Section block ── */
+function Section({ icon: Icon, title, children }) {
+  return (
+    <div style={{ padding:"20px 24px", borderBottom:"1.5px solid #F0EAE0" }}>
+      <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:16 }}>
+        <div style={{
+          width:30, height:30, borderRadius:9,
+          background:"#FDF9F0", border:"1px solid rgba(201,168,76,.25)",
+          display:"flex", alignItems:"center", justifyContent:"center",
+        }}>
+          <Icon size={14} color="#C9A84C" />
+        </div>
+        <span style={{ fontSize:11, fontWeight:700, letterSpacing:".18em",
+          textTransform:"uppercase", color:"#7A6A50" }}>
+          {title}
+        </span>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+/* ── PAGE ── */
 export default function TrackOrderPage() {
   const { orderId } = useParams();
   const router      = useRouter();
@@ -72,246 +155,281 @@ export default function TrackOrderPage() {
 
   if (!order) {
     return (
-      <div className="min-h-screen bg-[#f5f0e8] flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-500 text-sm mb-4">Order not found.</p>
-          <button onClick={() => router.push("/orders")}
-                  className="text-[#b8964e] text-sm hover:underline">
-            ← Back to Orders
-          </button>
+      <div style={{ minHeight:"100vh", background:"#F7F4F0",
+        display:"flex", alignItems:"center", justifyContent:"center" }}>
+        <div style={{ textAlign:"center" }}>
+          <Package size={44} color="#C4B49A" style={{ marginBottom:12 }} />
+          <p style={{ color:"#A89272", fontSize:14, marginBottom:12 }}>Order not found.</p>
+          <button onClick={() => router.push("/orders")} style={{
+            color:"#C9A84C", fontSize:13, background:"none",
+            border:"none", cursor:"pointer", fontWeight:700 }}>← Back</button>
         </div>
       </div>
     );
   }
 
-  const { tracking, customerName } = order;
+  const { customer, shipment } = order;
 
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;700&display=swap');
-        * { font-family: 'DM Sans', sans-serif; }
-        @keyframes fadeSlide {
-          from { opacity: 0; transform: translateY(12px); }
-          to   { opacity: 1; transform: translateY(0); }
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        *, *::before, *::after {
+          font-family:'Plus Jakarta Sans',sans-serif;
+          box-sizing:border-box; -webkit-font-smoothing:antialiased;
         }
-        @keyframes shimmer {
-          from { transform: translateX(-100%); }
-          to   { transform: translateX(100%); }
-        }
+        @keyframes trackFade { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
       `}</style>
 
-      <div className="min-h-screen bg-[#f5f0e8]">
+      <div style={{ minHeight:"100vh", background:"#F7F4F0" }}>
 
-        {/* ── Page Header ── */}
-        <div className="bg-[#f0ebe0] border-b border-[#e0d8cc] py-8 px-6 text-center
-                        animate-[fadeSlide_0.4s_ease_both]">
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight"
-              style={{ fontFamily: "'Playfair Display', serif" }}>
+        {/* Page header */}
+        <div style={{ background:"#F0EBE0", borderBottom:"1.5px solid #E5D9C8",
+          padding:"28px 24px", textAlign:"center", animation:"trackFade .3s ease both" }}>
+          <h1 style={{ fontFamily:"'Cormorant Garamond',serif",
+            fontSize:32, fontWeight:700, color:"#1A1205", margin:"0 0 5px" }}>
             Track Your Order
           </h1>
-          <p className="text-[12.5px] text-gray-400 mt-1 tracking-wide">
-            <span className="hover:text-gray-600 cursor-pointer transition-colors"
-                  onClick={() => router.push("/")}>Home</span>
-            {" / "}
-            <span className="hover:text-gray-600 cursor-pointer transition-colors"
-                  onClick={() => router.push("/orders")}>Orders</span>
-            {" / "}
-            <span className="text-gray-600 font-semibold">Track Your Order</span>
+          <p style={{ fontSize:12.5, color:"#A89272", margin:0 }}>
+            <span style={{ cursor:"pointer" }} onClick={() => router.push("/")}>Home</span>
+            <span style={{ margin:"0 6px", color:"#C9A84C" }}>›</span>
+            <span style={{ cursor:"pointer" }} onClick={() => router.back()}>Orders</span>
+            <span style={{ margin:"0 6px", color:"#C9A84C" }}>›</span>
+            <strong style={{ color:"#1A1205" }}>{order.id}</strong>
           </p>
         </div>
 
-        {/* ── Body ── */}
-        <div className="w-full px-6 lg:px-12 xl:px-20 py-10 animate-[fadeSlide_0.5s_ease_both]">
+        <div style={{ maxWidth:1000, margin:"0 auto", padding:"28px 20px 60px" }}>
 
           {/* Back */}
-          <button
-            onClick={() => router.back()}
-            className="flex items-center gap-1.5 text-[13px] text-gray-400 hover:text-gray-700
-                       transition-colors mb-6 group font-medium"
+          <button onClick={() => router.back()} style={{
+            display:"flex", alignItems:"center", gap:6, fontSize:13, color:"#A89272",
+            background:"none", border:"none", cursor:"pointer", marginBottom:22,
+            fontWeight:600, padding:0, transition:"color .2s",
+          }}
+            onMouseEnter={e => e.currentTarget.style.color="#1A1205"}
+            onMouseLeave={e => e.currentTarget.style.color="#A89272"}
           >
-            <ChevronLeft size={15} className="group-hover:-translate-x-0.5 transition-transform" />
-            Back to Orders
+            <ChevronLeft size={15}/> Back to Orders
           </button>
 
-          {/* ══════════════════════════════════════
-              CUSTOMER NAME BANNER
-          ══════════════════════════════════════ */}
-          <div className="flex items-center gap-4 bg-white border border-[#e8ddd0] rounded-2xl
-                          px-6 py-4 mb-5 shadow-[0_2px_16px_rgba(0,0,0,0.05)]
-                          animate-[fadeSlide_0.42s_ease_both]">
-            {/* Avatar */}
-            <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#d4a373] to-[#7a6030]
-                            flex items-center justify-center shrink-0 shadow-md">
-              <span className="text-white font-bold text-[15px] tracking-wide">
-                {customerName
-                  .split(" ")
-                  .map((w) => w[0])
-                  .slice(0, 2)
-                  .join("")
-                  .toUpperCase()}
-              </span>
-            </div>
-            {/* Text */}
-            <div>
-              <p className="text-[11px] uppercase tracking-widest text-gray-400 font-semibold mb-0.5">
-                Order placed by
+          {/* ══ WAITING STATE ══ */}
+          {!shipment.adminConfirmed && (
+            <div style={{
+              background:"#fff", border:"1.5px solid rgba(37,99,235,.25)",
+              borderRadius:20, padding:"32px 28px", marginBottom:20,
+              boxShadow:"0 2px 16px rgba(26,18,5,.06)",
+              animation:"trackFade .35s ease both",
+              textAlign:"center",
+            }}>
+              <div style={{
+                width:64, height:64, borderRadius:"50%", margin:"0 auto 18px",
+                background:"rgba(37,99,235,.08)", border:"2px solid rgba(37,99,235,.2)",
+                display:"flex", alignItems:"center", justifyContent:"center",
+              }}>
+                <Clock3 size={28} color="#2563eb" />
+              </div>
+              <h2 style={{ fontFamily:"'Cormorant Garamond',serif",
+                fontSize:24, fontWeight:700, color:"#1A1205", margin:"0 0 8px" }}>
+                Waiting for Order Confirmation
+              </h2>
+              <p style={{ fontSize:14, color:"#A89272", margin:"0 0 6px", lineHeight:1.7 }}>
+                Your order <strong style={{ color:"#C9A84C" }}>#{order.id}</strong> has been received.
               </p>
-              <p className="text-[17px] font-bold text-gray-900"
-                 style={{ fontFamily: "'Playfair Display', serif" }}>
-                {customerName}
+              <p style={{ fontSize:13.5, color:"#A89272", margin:"0 0 20px", lineHeight:1.7 }}>
+                Our team is reviewing and preparing your shipment.<br/>
+                Tracking details will appear here once the order is confirmed and dispatched.
               </p>
-            </div>
-            {/* Order ID pill */}
-            <div className="ml-auto hidden sm:flex flex-col items-end">
-              <p className="text-[11px] uppercase tracking-widest text-gray-400 font-semibold mb-0.5">
-                Order ID
-              </p>
-              <span className="text-[14px] font-bold text-[#b8964e]">#{order.id}</span>
-            </div>
-          </div>
-
-          {/* ── Tracking Header Card ── */}
-          <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(0,0,0,0.06)] px-7 py-6 mb-5
-                          animate-[fadeSlide_0.48s_ease_both]">
-
-            {/* Tracking no + ETA */}
-            <div className="flex flex-wrap items-start justify-between gap-4 mb-1">
-              <div>
-                <p className="text-[11px] uppercase tracking-widest text-gray-400 font-semibold mb-1">
-                  Tracking Number
-                </p>
-                <p className="text-[22px] font-bold text-gray-900 tracking-tight"
-                   style={{ fontFamily: "'Playfair Display', serif" }}>
-                  {tracking.trackingNumber}
-                </p>
-              </div>
-              <div className="text-right">
-                <p className="text-[11px] uppercase tracking-widest text-gray-400 font-semibold mb-1">
-                  Estimated Time of Delivery
-                </p>
-                <p className="text-[20px] font-bold text-gray-900 leading-tight"
-                   style={{ fontFamily: "'Playfair Display', serif" }}>
-                  {tracking.estimatedDelivery}
-                </p>
+              <div style={{
+                display:"inline-flex", alignItems:"center", gap:8,
+                padding:"10px 20px", borderRadius:99,
+                background:"rgba(37,99,235,.08)", border:"1px solid rgba(37,99,235,.2)",
+              }}>
+                <AlertCircle size={14} color="#2563eb" />
+                <span style={{ fontSize:13, color:"#2563eb", fontWeight:600 }}>
+                  Estimated confirmation: within 24 hours
+                </span>
               </div>
             </div>
+          )}
 
-            {/* Track another shipment */}
-            <div className="flex justify-end mt-1 mb-3">
-              <button
-                onClick={() => router.push("/orders")}
-                className="flex items-center gap-1 text-[12px] text-[#b8964e] hover:text-[#7a6030]
-                           font-semibold transition-colors"
-              >
-                TRACK ANOTHER SHIPMENT
-                <ArrowRight size={12} />
-              </button>
-            </div>
-
-            {/* Progress bar */}
-            <ProgressBar steps={tracking.steps} currentStep={tracking.currentStep} />
-          </div>
-
-          {/* ── Two column cards ── */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
-
-            {/* Delivery Details */}
-            <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(0,0,0,0.06)] overflow-hidden
-                            animate-[fadeSlide_0.52s_ease_both]">
-              <div className="bg-gray-900 px-5 py-4">
-                <h3 className="text-[13.5px] font-bold text-white tracking-widest text-center uppercase">
-                  Delivery Details
-                </h3>
-              </div>
-              <div className="px-5 py-2">
-                {/* Customer name row inside delivery details */}
-                <div className="flex items-center justify-between gap-4 py-2.5 border-b border-gray-100">
-                  <span className="text-[12.5px] text-gray-500 shrink-0 font-medium flex items-center gap-1.5">
-                    <User size={12} className="text-[#b8964e]" /> Recipient Name:
-                  </span>
-                  <span className="text-[12.5px] font-bold text-[#7a6030] text-right">{customerName}</span>
-                </div>
-                <InfoRow label="Estimated Delivery Date:" value={tracking.shipmentId} />
-                <InfoRow label="Delivery Address:"        value={tracking.deliveryAddress} />
-                <InfoRow label="Courier Partner:"         value={tracking.courierPartner} />
-                <InfoRow label="Tracking Number:"         value={tracking.trackingNumber} bold />
-              </div>
-            </div>
-
-            {/* Shipment Information */}
-            <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(0,0,0,0.06)] overflow-hidden
-                            animate-[fadeSlide_0.56s_ease_both]">
-              <div className="bg-gray-900 px-5 py-4">
-                <h3 className="text-[13.5px] font-bold text-white tracking-widest text-center uppercase">
-                  Shipment Information
-                </h3>
-              </div>
-              <div className="px-5 py-2">
-                <InfoRow label="Shipment ID:"       value={tracking.shipmentId} />
-                <InfoRow label="Courier Service:"   value={tracking.courierService} />
-                <InfoRow label="Tracking Number:"   value={tracking.courierPartner} />
-                <div className="py-2.5 border-b border-gray-100">
-                  <p className="text-[12.5px] text-gray-500 font-medium mb-0.5">Shipping Method:</p>
-                  <p className="text-[12.5px] text-gray-800 font-bold">{tracking.shippingMethod}</p>
-                  <p className="text-[11.5px] text-gray-400 font-medium">{tracking.shippingMethodNote}</p>
-                </div>
-                <InfoRow label="Shipment Date:"      value={tracking.shipmentDate} />
-                <InfoRow label="Estimated Arrival:"  value={tracking.estimatedArrival} bold />
-              </div>
-            </div>
-          </div>
-
-          {/* ── Need Help ── */}
-          <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(0,0,0,0.06)] px-7 py-6
-                          animate-[fadeSlide_0.6s_ease_both]">
-            <h3 className="text-[20px] font-bold text-[#b8964e] mb-1.5"
-                style={{ fontFamily: "'Playfair Display', serif" }}>
-              Need Help?
-            </h3>
-            <p className="text-[13px] text-gray-500 font-medium mb-5 leading-relaxed">
-              If you're facing any issues with tracking your order, our support team is here to help.
-            </p>
-
-            <div className="flex flex-wrap items-center justify-between gap-5">
-              <div className="space-y-3">
-                <a href="tel:+910000000000"
-                   className="flex items-center gap-3 text-[13.5px] font-semibold text-gray-700
-                              hover:text-gray-900 transition-colors group">
-                  <div className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center
-                                  group-hover:border-[#b8964e] group-hover:bg-[#fdf8f2] transition-all duration-200">
-                    <Phone size={14} className="text-gray-500 group-hover:text-[#b8964e] transition-colors" />
+          {/* ══ TRACKING CARD ══ */}
+          {shipment.adminConfirmed && (
+            <div style={{
+              background:"#fff", border:"1.5px solid #EDE5D8",
+              borderRadius:20, marginBottom:18, overflow:"hidden",
+              boxShadow:"0 2px 16px rgba(26,18,5,.06)",
+              animation:"trackFade .4s ease .05s both",
+            }}>
+              <div style={{ height:3, background:"linear-gradient(90deg,#C9A84C,#E8C96A,#C9A84C)" }} />
+              <div style={{ padding:"24px 28px" }}>
+                {/* Tracking no + ETA */}
+                <div style={{ display:"flex", flexWrap:"wrap", justifyContent:"space-between",
+                  alignItems:"flex-start", gap:16, marginBottom:6 }}>
+                  <div>
+                    <p style={{ margin:0, fontSize:11, fontWeight:700, letterSpacing:".16em",
+                      textTransform:"uppercase", color:"#A89272" }}>Tracking Number</p>
+                    <p style={{ margin:"4px 0 0", fontFamily:"'Cormorant Garamond',serif",
+                      fontSize:26, fontWeight:700, color:"#1A1205" }}>
+                      {shipment.trackingNumber}
+                    </p>
                   </div>
-                  Call Us: +91 0000 000 000
-                </a>
-                <a href="mailto:support@yourstore.com"
-                   className="flex items-center gap-3 text-[13.5px] font-semibold text-gray-700
-                              hover:text-gray-900 transition-colors group">
-                  <div className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center
-                                  group-hover:border-[#b8964e] group-hover:bg-[#fdf8f2] transition-all duration-200">
-                    <Mail size={14} className="text-gray-500 group-hover:text-[#b8964e] transition-colors" />
+                  <div style={{ textAlign:"right" }}>
+                    <p style={{ margin:0, fontSize:11, fontWeight:700, letterSpacing:".16em",
+                      textTransform:"uppercase", color:"#A89272" }}>Estimated Delivery</p>
+                    <p style={{ margin:"4px 0 0", fontFamily:"'Cormorant Garamond',serif",
+                      fontSize:22, fontWeight:700, color:"#1A1205" }}>
+                      {shipment.estimatedDelivery}
+                    </p>
                   </div>
-                  Email: support@yourstore.com
-                </a>
+                </div>
+                <div style={{ display:"flex", justifyContent:"flex-end", marginBottom:20 }}>
+                  <button onClick={() => router.push("/orders")} style={{
+                    display:"flex", alignItems:"center", gap:5, fontSize:11.5,
+                    fontWeight:700, color:"#C9A84C", background:"none",
+                    border:"none", cursor:"pointer", letterSpacing:".1em",
+                    textTransform:"uppercase", padding:0,
+                  }}>
+                    Track Another <ArrowRight size={12}/>
+                  </button>
+                </div>
+                <ProgressStepper steps={shipment.steps} currentStep={shipment.currentStep} />
+              </div>
+            </div>
+          )}
+
+          {/* ══ DETAILS SHEET ══ */}
+          <div style={{
+            background:"#fff", border:"1.5px solid #EDE5D8", borderRadius:20,
+            overflow:"hidden", boxShadow:"0 2px 16px rgba(26,18,5,.06)",
+            animation:"trackFade .4s ease .1s both",
+          }}>
+            <div style={{ height:3, background:"linear-gradient(90deg,#C9A84C,#E8C96A,#C9A84C)" }} />
+
+            {/* ── Customer Details ── */}
+            <Section icon={User} title="Customer Details">
+              <div style={{ display:"flex", alignItems:"center", gap:14, marginBottom:16 }}>
+                <div style={{
+                  width:46, height:46, borderRadius:"50%", flexShrink:0,
+                  background:"linear-gradient(135deg,#C9A84C,#E8C96A)",
+                  display:"flex", alignItems:"center", justifyContent:"center",
+                  fontSize:15, fontWeight:800, color:"#1A1205",
+                  boxShadow:"0 3px 12px rgba(201,168,76,.3)",
+                }}>
+                  {customer.fullName.split(" ").map(w=>w[0]).slice(0,2).join("").toUpperCase()}
+                </div>
+                <div>
+                  <p style={{ margin:0, fontFamily:"'Cormorant Garamond',serif",
+                    fontSize:20, fontWeight:700, color:"#1A1205" }}>{customer.fullName}</p>
+                  <div style={{ display:"flex", alignItems:"center", gap:5 }}>
+                    <AddrIcon type={customer.type} />
+                    <span style={{ fontSize:11, color:"#C9A84C", fontWeight:700,
+                      letterSpacing:".1em", textTransform:"uppercase" }}>
+                      {customer.type} Address
+                    </span>
+                  </div>
+                </div>
               </div>
 
-              {/* Contact Support button with shimmer */}
-              <button
-                onClick={() => alert("Opening support chat…")}
-                className="relative overflow-hidden flex items-center gap-2
-                           bg-[#7a6030] hover:bg-[#5e4a25] text-white
-                           text-[13px] font-bold tracking-widest uppercase
-                           px-7 py-3 rounded-xl
-                           shadow-[0_2px_12px_rgba(122,96,48,0.25)]
-                           hover:-translate-y-0.5 hover:shadow-[0_6px_22px_rgba(122,96,48,0.38)]
-                           active:translate-y-0 transition-all duration-200 group/cs"
-              >
-                <span className="absolute inset-0 -translate-x-full group-hover/cs:translate-x-full
-                                 transition-transform duration-700
-                                 bg-gradient-to-r from-transparent via-white/15 to-transparent pointer-events-none" />
-                Contact Support
-                <ArrowRight size={14} />
-              </button>
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(180px,1fr))", gap:"12px 20px" }}>
+                <Field label="Phone"   value={customer.phone} link={`tel:${customer.phone}`} />
+                <Field label="Email"   value={customer.email} link={`mailto:${customer.email}`} />
+                <Field label="City"    value={customer.city} />
+                <Field label="State"   value={customer.state} />
+                <Field label="Pincode" value={customer.pincode} />
+              </div>
+
+              <div style={{ marginTop:14, padding:"12px 16px",
+                background:"#FDFAF6", border:"1.5px solid #EDE5D8", borderRadius:12 }}>
+                <p style={{ margin:"0 0 3px", fontSize:10, fontWeight:700,
+                  letterSpacing:".12em", textTransform:"uppercase", color:"#B8A88A" }}>
+                  Delivery Address
+                </p>
+                <p style={{ margin:0, fontSize:14, fontWeight:700, color:"#1A1205", lineHeight:1.55 }}>
+                  {customer.address}
+                  {customer.landmark && (
+                    <span style={{ color:"#A89272", fontWeight:500 }}> · Near {customer.landmark}</span>
+                  )}
+                </p>
+                <p style={{ margin:"3px 0 0", fontSize:12.5, color:"#A89272" }}>
+                  {customer.city}, {customer.state} – {customer.pincode}
+                </p>
+              </div>
+            </Section>
+
+            {/* ── Shipment Details (admin-filled) ── */}
+            {shipment.adminConfirmed ? (
+              <Section icon={Truck} title="Shipment Details">
+                <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(180px,1fr))", gap:"12px 20px" }}>
+                  <Field label="Tracking No."   value={shipment.trackingNumber} gold />
+                  <Field label="Courier Name"   value={shipment.courierName} />
+                  <Field label="Courier Phone"  value={shipment.courierPhone} link={`tel:${shipment.courierPhone}`} />
+                  <Field label="Courier Service" value={shipment.courierService} />
+                  <Field label="Shipping Method" value={shipment.shippingMethod} />
+                  <Field label="Shipped On"     value={shipment.shipmentDate} />
+                  <Field label="Arriving"       value={shipment.estimatedArrival} />
+                </div>
+                {shipment.shippingNote && (
+                  <p style={{ margin:"12px 0 0", fontSize:12.5, color:"#A89272",
+                    padding:"8px 14px", background:"#F7F3EE", borderRadius:10 }}>
+                    ℹ️ {shipment.shippingNote}
+                  </p>
+                )}
+              </Section>
+            ) : (
+              <Section icon={Truck} title="Shipment Details">
+                <div style={{ display:"flex", alignItems:"center", gap:10,
+                  padding:"14px 18px", background:"rgba(37,99,235,.06)",
+                  borderRadius:12, border:"1px solid rgba(37,99,235,.15)" }}>
+                  <Clock3 size={16} color="#2563eb" style={{ flexShrink:0 }} />
+                  <div>
+                    <p style={{ margin:0, fontSize:13.5, fontWeight:700, color:"#2563eb" }}>
+                      Shipment details not yet available
+                    </p>
+                    <p style={{ margin:0, fontSize:12, color:"#7A9FD4" }}>
+                      Our team will update courier and tracking information after confirming your order.
+                    </p>
+                  </div>
+                </div>
+              </Section>
+            )}
+
+            {/* ── Need Help ── */}
+            <div style={{ padding:"22px 24px" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:14 }}>
+                <div style={{ width:30, height:30, borderRadius:9, background:"#FDF9F0",
+                  border:"1px solid rgba(201,168,76,.25)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                  <Sparkles size={14} color="#C9A84C" />
+                </div>
+                <span style={{ fontSize:11, fontWeight:700, letterSpacing:".18em",
+                  textTransform:"uppercase", color:"#7A6A50" }}>Need Help?</span>
+              </div>
+              <div style={{ display:"flex", flexWrap:"wrap", alignItems:"center",
+                justifyContent:"space-between", gap:16 }}>
+                <div style={{ display:"flex", gap:20, flexWrap:"wrap" }}>
+                  <a href="tel:+910000000000" style={{ display:"flex", alignItems:"center", gap:9,
+                    textDecoration:"none", color:"#5A4A35", fontSize:13.5, fontWeight:600 }}>
+                    <Phone size={14} color="#C9A84C"/> +91 0000 000 000
+                  </a>
+                  <a href="mailto:support@banishq.com" style={{ display:"flex", alignItems:"center", gap:9,
+                    textDecoration:"none", color:"#5A4A35", fontSize:13.5, fontWeight:600 }}>
+                    <Mail size={14} color="#C9A84C"/> support@banishq.com
+                  </a>
+                </div>
+                <button onClick={() => alert("Opening support…")} style={{
+                  display:"flex", alignItems:"center", gap:8,
+                  padding:"12px 24px", borderRadius:12, border:"none",
+                  background:"linear-gradient(120deg,#1A1205,#3a2408)",
+                  color:"#F5EDE0", fontSize:13, fontWeight:700, cursor:"pointer",
+                  boxShadow:"0 5px 20px rgba(26,18,5,.22)",
+                  transition:"transform .2s, box-shadow .2s",
+                }}
+                  onMouseEnter={e=>{ e.currentTarget.style.transform="translateY(-2px)"; e.currentTarget.style.boxShadow="0 8px 24px rgba(26,18,5,.3)"; }}
+                  onMouseLeave={e=>{ e.currentTarget.style.transform="translateY(0)";    e.currentTarget.style.boxShadow="0 5px 20px rgba(26,18,5,.22)"; }}
+                >
+                  Contact Support <ArrowRight size={13}/>
+                </button>
+              </div>
             </div>
           </div>
 
