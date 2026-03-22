@@ -4,27 +4,34 @@
 import { useState } from "react";
 import {
   Settings, Store, Truck, Bell, Tag,
-  Share2, Save, Check, Globe,
+  Share2, Save, Check,
 } from "lucide-react";
 import { SectionTitle, GoldBtn } from "../components/AdminUI";
-import { C, inputStyle, labelStyle } from "../data/theme";
+import { C, labelStyle, inputStyle } from "../data/theme";
+
+// FIX 1: Guard — if settings prop is undefined/null, use safe defaults
+//         This prevents "Cannot read properties of undefined" crashes
+import { INITIAL_SETTINGS } from "../data/settings.data";
 
 /* ── Settings section wrapper ── */
 function SettingsSection({ icon: Icon, title, children }) {
   return (
     <div style={{
-      background: C.card, border: `1px solid ${C.border}`,
+      // FIX 2: Use C.surface (white) not C.card — matches light theme
+      background: C.surface,
+      border: `1.5px solid ${C.border}`,
       borderRadius: 16, overflow: "hidden", marginBottom: 20,
+      boxShadow: `0 2px 12px ${C.shadow}`,
     }}>
-      {/* Section header */}
       <div style={{
         display: "flex", alignItems: "center", gap: 10,
         padding: "16px 20px", borderBottom: `1px solid ${C.border}`,
-        background: "rgba(201,168,76,.04)",
+        background: C.goldBg,
       }}>
         <div style={{
           width: 30, height: 30, borderRadius: 9,
-          background: "rgba(201,168,76,.15)", border: "1px solid rgba(201,168,76,.25)",
+          background: "rgba(201,168,76,.15)",
+          border: "1px solid rgba(201,168,76,.25)",
           display: "flex", alignItems: "center", justifyContent: "center",
         }}>
           <Icon size={14} color={C.gold} />
@@ -36,41 +43,50 @@ function SettingsSection({ icon: Icon, title, children }) {
   );
 }
 
-/* ── Toggle component ── */
+/* ── Toggle ── */
+// FIX 3: Changed div onClick to button for proper accessibility + no warning
 function Toggle({ value, onChange, label, description }) {
   return (
     <div style={{
       display: "flex", justifyContent: "space-between", alignItems: "center",
       padding: "12px 0", borderBottom: `1px solid ${C.border}`,
     }}>
-      <div>
+      <div style={{ flex: 1, paddingRight: 16 }}>
         <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: C.text }}>{label}</p>
-        {description && <p style={{ margin: 0, fontSize: 11, color: C.dim, marginTop: 2 }}>{description}</p>}
+        {description && (
+          <p style={{ margin: "2px 0 0", fontSize: 11.5, color: C.dim }}>{description}</p>
+        )}
       </div>
-      <div
+      {/* FIX 3: button element instead of div */}
+      <button
+        type="button"
         onClick={() => onChange(!value)}
         style={{
           width: 46, height: 26, borderRadius: 99, cursor: "pointer",
+          border: "none", outline: "none", flexShrink: 0,
           background: value ? C.gold : C.border,
-          position: "relative", flexShrink: 0, transition: "background .2s",
+          position: "relative", transition: "background .25s",
         }}
       >
         <div style={{
           position: "absolute", top: 3,
           left: value ? 23 : 3,
           width: 20, height: 20, borderRadius: "50%",
-          background: "#fff", transition: "left .2s",
-          boxShadow: "0 1px 4px rgba(0,0,0,.3)",
+          background: "#fff", transition: "left .25s",
+          boxShadow: "0 1px 4px rgba(0,0,0,.25)",
         }} />
-      </div>
+      </button>
     </div>
   );
 }
 
-/* ── Field row ── */
+/* ── Field row (label + input side by side) ── */
 function FieldRow({ label, children }) {
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "160px 1fr", gap: 14, alignItems: "center", marginBottom: 12 }}>
+    <div style={{
+      display: "grid", gridTemplateColumns: "160px 1fr",
+      gap: 14, alignItems: "center", marginBottom: 12,
+    }}>
       <label style={{ ...labelStyle, marginBottom: 0 }}>{label}</label>
       {children}
     </div>
@@ -79,8 +95,10 @@ function FieldRow({ label, children }) {
 
 /* ── Main Settings Page ── */
 export default function SettingsPage({ settings, onSave }) {
-  const [form, setForm]     = useState(settings);
-  const [saved, setSaved]   = useState(false);
+  // FIX 4: Fallback to INITIAL_SETTINGS if settings prop is undefined/null
+  //         This is the main crash — when the component mounts before data loads
+  const [form, setForm]   = useState(settings ?? INITIAL_SETTINGS);
+  const [saved, setSaved] = useState(false);
 
   const set = (section, key, val) =>
     setForm(f => ({ ...f, [section]: { ...f[section], [key]: val } }));
@@ -90,6 +108,15 @@ export default function SettingsPage({ settings, onSave }) {
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
   };
+
+  // FIX 5: Extra guard — if form sections are missing, bail gracefully
+  if (!form?.store || !form?.shipping || !form?.notifications || !form?.promo || !form?.social) {
+    return (
+      <div style={{ padding: 40, textAlign: "center", color: C.muted, fontSize: 14 }}>
+        Loading settings…
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -102,16 +129,16 @@ export default function SettingsPage({ settings, onSave }) {
       {/* ── Store Info ── */}
       <SettingsSection icon={Store} title="Store Information">
         {[
-          { key: "name",      label: "Store Name",  placeholder: "BANISHQ"                    },
-          { key: "tagline",   label: "Tagline",      placeholder: "Premium Curated Collections" },
-          { key: "email",     label: "Support Email", placeholder: "support@banishq.com"       },
-          { key: "phone",     label: "Phone",        placeholder: "+91 00000 00000"             },
-          { key: "address",   label: "Address",      placeholder: "Studio address"              },
-          { key: "gstNumber", label: "GST Number",   placeholder: "08AABCU9603R1ZX"            },
+          { key: "name",      label: "Store Name",    placeholder: "BANISHQ"                        },
+          { key: "tagline",   label: "Tagline",        placeholder: "Premium Curated Collections"    },
+          { key: "email",     label: "Support Email",  placeholder: "support@banishq.com"            },
+          { key: "phone",     label: "Phone",          placeholder: "+91 00000 00000"                },
+          { key: "address",   label: "Address",        placeholder: "Studio address"                 },
+          { key: "gstNumber", label: "GST Number",     placeholder: "08AABCU9603R1ZX"               },
         ].map(f => (
           <FieldRow key={f.key} label={f.label}>
             <input
-              value={form.store[f.key]}
+              value={form.store[f.key] ?? ""}
               onChange={e => set("store", f.key, e.target.value)}
               placeholder={f.placeholder}
               style={inputStyle}
@@ -122,18 +149,19 @@ export default function SettingsPage({ settings, onSave }) {
 
       {/* ── Shipping ── */}
       <SettingsSection icon={Truck} title="Shipping & Delivery">
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14, marginBottom: 16 }}>
+        {/* FIX 6: 4 fields → 2x2 grid instead of 1x3 (was overflowing) */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 16 }}>
           {[
             { key: "freeShippingThreshold", label: "Free Shipping Above (₹)" },
-            { key: "standardRate",          label: "Standard Rate (₹)"       },
-            { key: "expressRate",           label: "Express Rate (₹)"        },
+            { key: "standardRate",          label: "Standard Delivery (₹)"   },
+            { key: "expressRate",           label: "Express Delivery (₹)"    },
             { key: "codCharge",             label: "COD Charge (₹)"          },
           ].map(f => (
             <div key={f.key}>
               <label style={labelStyle}>{f.label}</label>
               <input
                 type="number"
-                value={form.shipping[f.key]}
+                value={form.shipping[f.key] ?? ""}
                 onChange={e => set("shipping", f.key, Number(e.target.value))}
                 style={inputStyle}
               />
@@ -160,7 +188,7 @@ export default function SettingsPage({ settings, onSave }) {
           value={form.notifications.emailOnLowStock}
           onChange={v => set("notifications", "emailOnLowStock", v)}
           label="Low Stock Alerts"
-          description={`Alert when stock falls below ${form.notifications.lowStockThreshold} units`}
+          description={`Alert when stock falls below ${form.notifications.lowStockThreshold ?? 10} units`}
         />
         <Toggle
           value={form.notifications.smsOnOrderShipped}
@@ -176,28 +204,30 @@ export default function SettingsPage({ settings, onSave }) {
         />
       </SettingsSection>
 
-      {/* ── Promo / Coupon ── */}
-      <SettingsSection icon={Tag} title="Welecome Coupun Code">
+      {/* ── Promo Banner ── */}
+      {/* FIX 7: Fixed typo "Welecome Coupun Code" → "Welcome Coupon & Promo Banner" */}
+      <SettingsSection icon={Tag} title="Welcome Coupon & Promo Banner">
         <Toggle
           value={form.promo.showPromoBanner}
           onChange={v => set("promo", "showPromoBanner", v)}
           label="Show Promo Banner"
           description="Display the announcement banner at the top of the site"
         />
-        <div style={{ marginTop: 14, display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 12 }}>
+        <div style={{ marginTop: 16, display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 14 }}>
           <div>
             <label style={labelStyle}>Coupon Code</label>
             <input
-              value={form.promo.activeCoupon}
+              value={form.promo.activeCoupon ?? ""}
               onChange={e => set("promo", "activeCoupon", e.target.value)}
-              placeholder="SAVE10" style={inputStyle}
+              placeholder="SAVE10"
+              style={inputStyle}
             />
           </div>
           <div>
             <label style={labelStyle}>Discount %</label>
             <input
               type="number" min="0" max="100"
-              value={form.promo.discountPercent}
+              value={form.promo.discountPercent ?? ""}
               onChange={e => set("promo", "discountPercent", Number(e.target.value))}
               style={inputStyle}
             />
@@ -206,7 +236,7 @@ export default function SettingsPage({ settings, onSave }) {
             <label style={labelStyle}>Expiry Date</label>
             <input
               type="date"
-              value={form.promo.couponExpiry}
+              value={form.promo.couponExpiry ?? ""}
               onChange={e => set("promo", "couponExpiry", e.target.value)}
               style={inputStyle}
             />
@@ -215,9 +245,9 @@ export default function SettingsPage({ settings, onSave }) {
         <div>
           <label style={labelStyle}>Promo Banner Text</label>
           <input
-            value={form.promo.promoText}
+            value={form.promo.promoText ?? ""}
             onChange={e => set("promo", "promoText", e.target.value)}
-            placeholder="Use code SAVE10 for 10% off…"
+            placeholder="Use code SAVE10 for 10% off your first order!"
             style={inputStyle}
           />
         </div>
@@ -226,14 +256,14 @@ export default function SettingsPage({ settings, onSave }) {
       {/* ── Social Links ── */}
       <SettingsSection icon={Share2} title="Social Media Links">
         {[
-          { key: "instagram", label: "Instagram", placeholder: "https://instagram.com/…"    },
-          { key: "facebook",  label: "Facebook",  placeholder: "https://facebook.com/…"     },
-          { key: "whatsapp",  label: "WhatsApp",  placeholder: "https://wa.me/91…"          },
-          { key: "youtube",   label: "YouTube",   placeholder: "https://youtube.com/@…"     },
+          { key: "instagram", label: "Instagram", placeholder: "https://instagram.com/banishq"  },
+          { key: "facebook",  label: "Facebook",  placeholder: "https://facebook.com/banishq"   },
+          { key: "whatsapp",  label: "WhatsApp",  placeholder: "https://wa.me/910000000000"     },
+          { key: "youtube",   label: "YouTube",   placeholder: "https://youtube.com/@banishq"   },
         ].map(f => (
           <FieldRow key={f.key} label={f.label}>
             <input
-              value={form.social[f.key]}
+              value={form.social[f.key] ?? ""}
               onChange={e => set("social", f.key, e.target.value)}
               placeholder={f.placeholder}
               style={inputStyle}
@@ -242,8 +272,8 @@ export default function SettingsPage({ settings, onSave }) {
         ))}
       </SettingsSection>
 
-      {/* Save button */}
-      <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
+      {/* Save */}
+      <div style={{ display: "flex", justifyContent: "flex-end" }}>
         <GoldBtn onClick={handleSave}>
           {saved
             ? <><Check size={14} /> Saved!</>
