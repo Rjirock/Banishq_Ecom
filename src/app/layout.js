@@ -5,7 +5,7 @@ import Footer from "@/components/navbar/footer/page";
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
 import CartToast from "../components/Carttoast/page";
-
+import { WishlistProvider } from "@/context/WishlistContext";
 const poppins = Poppins({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
@@ -33,11 +33,13 @@ export default function RootLayout({ children }) {
       }}>
         <AuthProvider>
           <CartProvider>
-            <Header />
-            <CartToast />
-            <main style={{ width: "100%", minHeight: "100vh" }} className="pt-[144px] max-sm:pt-[132px]">
-            {children}
-            </main>
+            <WishlistProvider>
+              <Header />
+              <CartToast />
+              <main style={{ width: "100%", minHeight: "100vh" }} className="pt-[144px] max-sm:pt-[132px]">
+                {children}
+              </main>
+            </WishlistProvider>
           </CartProvider>
           <Footer />
         </AuthProvider>

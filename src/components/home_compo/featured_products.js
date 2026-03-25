@@ -4,6 +4,7 @@
 import { useState } from "react";
 import { Heart, Star, ShoppingCart, Check } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { useWishlist } from "@/context/WishlistContext";
 import { featuredProducts } from "../../app/data/featured-products/featuredProducts";
 
 /* ─────────────────────────────────────────
@@ -107,59 +108,69 @@ const STYLES = `
 ───────────────────────────────────────── */
 function ProductCard({ product, delay = 0 }) {
   const { addItem } = useCart();
-  const [liked,  setLiked]  = useState(false);
+  const { toggleWishlist, isWishlisted } = useWishlist();
   const [status, setStatus] = useState("idle");
+
+  const liked = isWishlisted(product.id);
 
   const handleAddToCart = () => {
     if (status === "added") return;
     addItem({
-      id:            product.id,
-      name:          product.name,
-      brand:         product.brand,
-      image:         product.image,
-      price:         product.price,
+      id: product.id,
+      name: product.name,
+      brand: product.brand,
+      image: product.image,
+      price: product.price,
       originalPrice: product.originalPrice,
-      discount:      product.discount,
+      discount: product.discount,
     });
     setStatus("added");
     setTimeout(() => setStatus("idle"), 2000);
   };
 
-  const fmt  = (n) => `₹${n.toLocaleString("en-IN")}`;
+  const fmt = (n) => `₹${n.toLocaleString("en-IN")}`;
   const isAdded = status === "added";
 
   return (
-    <div className="fp-card" style={{ animationDelay:`${delay}s` }}>
+    <div className="fp-card" style={{ animationDelay: `${delay}s` }}>
 
       {/* IMAGE */}
       <div className="fp-img-wrap">
-        <img src={product.image} alt={product.name}/>
+        <img src={product.image} alt={product.name} />
 
         {/* discount badge */}
         <div style={{
-          position:"absolute", top:10, left:10,
-          background:"linear-gradient(135deg,#9C7A3C,#c8a050)",
-          color:"#fff", fontSize:10.5, fontWeight:800,
-          padding:"4px 10px", borderRadius:20,
-          letterSpacing:".04em",
-          boxShadow:"0 2px 8px rgba(156,122,60,.4)",
+          position: "absolute", top: 10, left: 10,
+          background: "linear-gradient(135deg,#9C7A3C,#c8a050)",
+          color: "#fff", fontSize: 10.5, fontWeight: 800,
+          padding: "4px 10px", borderRadius: 20,
+          letterSpacing: ".04em",
+          boxShadow: "0 2px 8px rgba(156,122,60,.4)",
         }}>
           {product.discount}% OFF
         </div>
 
         {/* wishlist */}
         <button
-          onClick={() => setLiked(v => !v)}
+          onClick={() => toggleWishlist({
+            id: product.id,
+            name: product.name,
+            brand: product.brand,
+            image: product.image,
+            price: product.price,
+            originalPrice: product.originalPrice,
+            discount: product.discount,
+          })}
           style={{
-            position:"absolute", top:10, right:10,
-            width:36, height:36, borderRadius:"50%",
-            background:"rgba(255,255,255,.92)", border:"none",
-            display:"flex", alignItems:"center", justifyContent:"center",
-            cursor:"pointer", boxShadow:"0 2px 8px rgba(0,0,0,.1)",
-            transition:"transform .2s",
+            position: "absolute", top: 10, right: 10,
+            width: 36, height: 36, borderRadius: "50%",
+            background: "rgba(255,255,255,.92)", border: "none",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,.1)",
+            transition: "transform .2s",
           }}
-          onMouseEnter={e=>e.currentTarget.style.transform="scale(1.1)"}
-          onMouseLeave={e=>e.currentTarget.style.transform="scale(1)"}
+          onMouseEnter={e => e.currentTarget.style.transform = "scale(1.1)"}
+          onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
         >
           <Heart
             size={18} strokeWidth={1.6}
@@ -171,44 +182,48 @@ function ProductCard({ product, delay = 0 }) {
       </div>
 
       {/* CONTENT */}
-      <div style={{ padding:"16px 16px 18px" }}>
+      <div style={{ padding: "16px 16px 18px" }}>
 
         {/* name */}
         <h3 style={{
-          fontFamily:"'Cormorant Garamond',serif",
-          fontSize:"clamp(15px,1.4vw,17px)", fontWeight:700,
-          color:"#1a1205", margin:"0 0 3px", lineHeight:1.3,
-          overflow:"hidden", display:"-webkit-box",
-          WebkitLineClamp:2, WebkitBoxOrient:"vertical",
+          fontFamily: "'Cormorant Garamond',serif",
+          fontSize: "clamp(15px,1.4vw,17px)", fontWeight: 700,
+          color: "#1a1205", margin: "0 0 3px", lineHeight: 1.3,
+          overflow: "hidden", display: "-webkit-box",
+          WebkitLineClamp: 2, WebkitBoxOrient: "vertical",
         }}>
           {product.name}
         </h3>
 
         {/* brand */}
-        <p style={{ fontSize:11, color:"rgba(0,0,0,.38)", fontWeight:600,
-          letterSpacing:".04em", margin:"0 0 10px" }}>
+        <p style={{
+          fontSize: 11, color: "rgba(0,0,0,.38)", fontWeight: 600,
+          letterSpacing: ".04em", margin: "0 0 10px"
+        }}>
           {product.brand}
         </p>
 
         {/* price row */}
-        <div style={{ display:"flex", alignItems:"baseline", gap:8, marginBottom:10 }}>
-          <span style={{ fontSize:"clamp(16px,1.6vw,19px)", fontWeight:700,
-            color:"#9C7A3C", fontFamily:"'Cormorant Garamond',serif" }}>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 10 }}>
+          <span style={{
+            fontSize: "clamp(16px,1.6vw,19px)", fontWeight: 700,
+            color: "#9C7A3C", fontFamily: "'Cormorant Garamond',serif"
+          }}>
             {fmt(product.price)}
           </span>
-          <span style={{ fontSize:12, color:"rgba(0,0,0,.28)", textDecoration:"line-through" }}>
+          <span style={{ fontSize: 12, color: "rgba(0,0,0,.28)", textDecoration: "line-through" }}>
             {fmt(product.originalPrice)}
           </span>
         </div>
 
         {/* stars */}
-        <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:14 }}>
-          <div style={{ display:"flex", gap:1 }}>
-            {[...Array(5)].map((_,i) => (
-              <Star key={i} size={13} fill="#F4B400" color="#F4B400" strokeWidth={0}/>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 14 }}>
+          <div style={{ display: "flex", gap: 1 }}>
+            {[...Array(5)].map((_, i) => (
+              <Star key={i} size={13} fill="#F4B400" color="#F4B400" strokeWidth={0} />
             ))}
           </div>
-          <span style={{ fontSize:12, color:"rgba(0,0,0,.5)" }}>
+          <span style={{ fontSize: 12, color: "rgba(0,0,0,.5)" }}>
             {product.rating} ({product.reviews} Reviews)
           </span>
         </div>
@@ -220,9 +235,9 @@ function ProductCard({ product, delay = 0 }) {
           className={`fp-atc ${isAdded ? "added" : "idle"}`}
         >
           {isAdded ? (
-            <><Check size={15} strokeWidth={2.5}/> Added to Cart</>
+            <><Check size={15} strokeWidth={2.5} /> Added to Cart</>
           ) : (
-            <><ShoppingCart size={15}/> Add to Cart</>
+            <><ShoppingCart size={15} /> Add to Cart</>
           )}
         </button>
       </div>
@@ -237,17 +252,21 @@ export default function FeaturedProducts() {
   return (
     <>
       <style>{STYLES}</style>
-      <section className="fp-section" style={{ background:"#EDEBE8" }}>
+      <section className="fp-section" style={{ background: "#EDEBE8" }}>
         <div className="fp-inner">
 
           {/* heading + eyebrow */}
-          <div style={{ marginBottom:36 }}>
-            <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:10 }}>
-              <div style={{ height:1, width:32,
-                background:"linear-gradient(90deg,transparent,#C9A84C)" }}/>
-              <span style={{ fontSize:10.5, fontWeight:700, letterSpacing:".24em",
-                textTransform:"uppercase", color:"#C9A84C",
-                fontFamily:"'Jost',sans-serif" }}>
+          <div style={{ marginBottom: 36 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+              <div style={{
+                height: 1, width: 32,
+                background: "linear-gradient(90deg,transparent,#C9A84C)"
+              }} />
+              <span style={{
+                fontSize: 10.5, fontWeight: 700, letterSpacing: ".24em",
+                textTransform: "uppercase", color: "#C9A84C",
+                fontFamily: "'Jost',sans-serif"
+              }}>
                 Handpicked for You
               </span>
             </div>
