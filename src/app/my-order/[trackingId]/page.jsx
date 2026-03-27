@@ -216,7 +216,7 @@ export default function OrderDetailPage() {
              style={{ animation: "riseUp .4s ease .05s both" }}>
 
           {/* Back button */}
-          <button onClick={() => router.back()}
+          <button onClick={() => router.push("/profile?tab=my-orders")}
             className="flex items-center gap-1.5 text-[#a89272] text-sm font-semibold mb-6 hover:text-[#1a1205] transition-colors bg-none border-none cursor-pointer p-0">
             <ChevronLeft size={15} /> Back to My Orders
           </button>

@@ -178,8 +178,8 @@ export default function HamburgerDrawer({ open, onClose, user, onLogout }) {
               </a>
             ))}
             {user && (
-              <a className="ql-row" href="/my-order"
-                onClick={e=>{e.preventDefault();go("/my-order")}}
+              <a className="ql-row" href="profile?tab=my-order"
+                onClick={e=>{e.preventDefault();go("profile?tab=my-order")}}
                 style={{ animationDelay:".32s",marginBottom:2 }}>
                 <Package size={14} color="#A89880" strokeWidth={1.8}/>
                 <span style={{ fontSize:13,fontWeight:500,color:"#3d2a0a" }}>My Orders</span>

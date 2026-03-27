@@ -13,6 +13,7 @@ import {
     womenProducts,
     womenCategories,
 } from "../../../app/data/women_category_data/women_data";
+import { useWishlist } from "@/context/WishlistContext";
 
 /* ─────────────────────────────────────────
    GLOBAL STYLES
@@ -97,7 +98,67 @@ const STYLES = `
   .wish-btn:hover{background:#fff5f5 !important;border-color:#fca5a5 !important}
   .wish-btn.active{background:#fff5f5;border-color:#fca5a5;color:#ef4444}
 `;
-
+/* ══════════════════════════════════════
+   WISHLIST TOAST
+══════════════════════════════════════ */
+function WishlistToast({ item, onClose }) {
+    if (!item) return null;
+    return (
+      <div style={{
+        position:"fixed", bottom:24, left:"50%", transform:"translateX(-50%)",
+        zIndex:10000, width:"min(320px,90vw)",
+        background:"#1a1205",
+        border: item.added ? "1px solid rgba(239,68,68,0.35)" : "1px solid rgba(160,120,60,0.3)",
+        borderRadius:14,
+        boxShadow:"0 8px 32px rgba(0,0,0,0.28)",
+        display:"flex", alignItems:"center", gap:12,
+        padding:"12px 14px",
+        animation:"wishToastIn .3s cubic-bezier(.22,1,.36,1) both",
+        fontFamily:"'Jost',sans-serif",
+      }}>
+        {/* icon */}
+        <div style={{
+          width:34, height:34, borderRadius:"50%", flexShrink:0,
+          background: item.added ? "rgba(239,68,68,.15)" : "rgba(160,120,60,.15)",
+          display:"flex", alignItems:"center", justifyContent:"center",
+        }}>
+          <Heart size={15}
+            fill={item.added ? "#ef4444" : "none"}
+            color={item.added ? "#ef4444" : "#C9A84C"}
+            strokeWidth={2}/>
+        </div>
+   
+        {/* text */}
+        <div style={{ flex:1, minWidth:0 }}>
+          <p style={{ fontSize:12.5, fontWeight:700, color:"#f5ede0", margin:0, lineHeight:1.3 }}>
+            {item.added ? "Added to Wishlist ♥" : "Removed from Wishlist"}
+          </p>
+          <p style={{ fontSize:11, color:"#a89272", margin:"2px 0 0",
+            overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
+            {item.name}
+          </p>
+        </div>
+   
+        {/* view wishlist link */}
+        {item.added && (
+          <a href="/my-whishlist" style={{
+            fontSize:10.5, fontWeight:700, color:"#C9A84C",
+            textDecoration:"none", letterSpacing:".06em", flexShrink:0,
+            whiteSpace:"nowrap",
+          }}>
+            View →
+          </a>
+        )}
+   
+        <button onClick={onClose} style={{
+          background:"none", border:"none", cursor:"pointer",
+          color:"#7a6a50", flexShrink:0, padding:0, lineHeight:1,
+        }}>
+          <X size={13}/>
+        </button>
+      </div>
+    );
+  }
 /* ─────────────────────────────────────────
    SCROLL REVEAL HOOK
 ───────────────────────────────────────── */

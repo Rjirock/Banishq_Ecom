@@ -47,7 +47,7 @@ const FocusSelect = ({ style = {}, children, ...props }) => (
   </select>
 );
 
-export default function PaymentStep({ onBack, totalAmount, addressData }) {
+export default function PaymentStep({ onBack, totalAmount, addressData, onOrderPlaced }) {
   const router   = useRouter();
   const { user } = useAuth();
 
@@ -64,11 +64,19 @@ export default function PaymentStep({ onBack, totalAmount, addressData }) {
     : (totalAmount ?? 0);
 
   const handleCOD = () => {
-    router.push("/order-confirmed");
+    if (onOrderPlaced) {
+      onOrderPlaced({ paymentMethod:"cod", total: amountToPay, addressInfo: addressData });
+    } else {
+      router.push("/order-confirmed");
+    }
   };
 
   const handlePaymentSuccess = (paymentData) => {
-    router.push("/order-confirmed");
+    if (onOrderPlaced) {
+      onOrderPlaced({ paymentMethod: method, total: amountToPay, addressInfo: addressData });
+    } else {
+      router.push("/order-confirmed");
+    }
   };
 
   const handlePaymentFailure = (error) => {

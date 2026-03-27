@@ -10,76 +10,86 @@ import { useCart }     from "@/context/CartContext";
 /* ─── Row component ─────────────────────────── */
 function WishlistRow({ item, onRemove, cartAdded, onAddToCart }) {
   return (
-    <div className="group grid grid-cols-[36px_80px_1fr_120px_120px_160px] items-center
-                    gap-4 px-6 py-5 border-b border-gray-100 last:border-b-0
-                    hover:bg-[#fdf9f4] transition-colors duration-200
-                    animate-[fadeSlide_0.35s_ease_both]">
+    <div className="group flex flex-col md:grid md:grid-cols-[40px_90px_1fr_140px_140px_180px]
+                    gap-4 px-4 md:px-6 py-5 border-b border-gray-100
+                    hover:bg-[#fdf9f4] transition-all duration-200">
 
-      {/* Remove */}
-      <button
-        onClick={() => onRemove(item.id)}
-        className="w-7 h-7 flex items-center justify-center rounded-full border border-gray-300
-                   text-gray-400 hover:border-red-400 hover:text-red-400 hover:bg-red-50
-                   transition-all duration-200 hover:scale-110 active:scale-95 shrink-0"
-        title="Remove from wishlist"
-      >
-        <X size={13} strokeWidth={2.5} />
-      </button>
+      {/* Top Section (Mobile Layout) */}
+      <div className="flex items-center gap-3 md:contents">
 
-      {/* Image */}
-      <div className="w-[72px] h-[84px] rounded-xl overflow-hidden bg-gray-100 ring-1 ring-gray-200 shrink-0">
-        <img src={item.image} alt={item.name}
-             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+        {/* Remove */}
+        <button
+          onClick={() => onRemove(item.id)}
+          className="w-7 h-7 flex items-center justify-center rounded-full border border-gray-300
+                     text-gray-400 hover:border-red-400 hover:text-red-400 hover:bg-red-50 transition"
+        >
+          <X size={13} />
+        </button>
+
+        {/* Image */}
+        <div className="w-[70px] h-[80px] rounded-xl overflow-hidden bg-gray-100">
+          <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+        </div>
+
+        {/* Mobile Info */}
+        <div className="flex-1 md:hidden">
+          <p className="text-[14px] font-semibold text-gray-900">{item.name}</p>
+          <p className="text-[13px] text-[#7a6030] font-bold mt-1">
+            ₹{item.price.toLocaleString("en-IN")}
+          </p>
+          <p className={`text-[12px] mt-1 ${
+            item.inStock !== false ? "text-green-600" : "text-red-400"
+          }`}>
+            {item.inStock !== false ? "In Stock" : "Out of Stock"}
+          </p>
+        </div>
       </div>
 
-      {/* Name */}
-      <div>
-        <p className="text-[14.5px] font-bold text-gray-900 leading-snug pr-4">{item.name}</p>
-        {item.brand && <p className="text-[11px] text-gray-400 mt-0.5">{item.brand}</p>}
+      {/* Desktop Name */}
+      <div className="hidden md:block">
+        <p className="text-[14.5px] font-bold text-gray-900">{item.name}</p>
+        {item.brand && <p className="text-[11px] text-gray-400">{item.brand}</p>}
       </div>
 
-      {/* Price */}
-      <p className="text-[15px] font-bold text-gray-900">
+      {/* Desktop Price */}
+      <p className="hidden md:block text-[15px] font-bold text-gray-900">
         ₹{item.price.toLocaleString("en-IN")}
       </p>
 
-      {/* Stock */}
-      <div>
+      {/* Desktop Stock */}
+      <div className="hidden md:block">
         {item.inStock !== false ? (
-          <span className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-green-600">
-            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            In Stock
-          </span>
+          <span className="text-green-600 text-[13px] font-semibold">In Stock</span>
         ) : (
-          <span className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-red-400">
-            <span className="w-2 h-2 rounded-full bg-red-400" />
-            Out of Stock
-          </span>
+          <span className="text-red-400 text-[13px] font-semibold">Out of Stock</span>
         )}
       </div>
 
-      {/* Add to Cart */}
-      <button
-        onClick={() => item.inStock !== false && onAddToCart(item)}
-        disabled={item.inStock === false}
-        className={`relative overflow-hidden px-5 py-2.5 rounded-lg border text-[12px] font-bold
-                    tracking-[0.1em] uppercase transition-all duration-300 group/btn
-                    ${cartAdded
-                      ? "border-green-500 text-green-600 bg-green-50 scale-95"
-                      : item.inStock !== false
-                      ? "border-[#b8964e] text-[#7a6030] hover:bg-[#7a6030] hover:text-white hover:border-[#7a6030] hover:shadow-[0_4px_20px_rgba(122,96,48,0.35)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95"
-                      : "border-gray-200 text-gray-300 cursor-not-allowed"
-                    }`}
-      >
-        {item.inStock !== false && !cartAdded && (
-          <span className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full
-                           transition-transform duration-700
-                           bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
-        )}
-        {cartAdded
-          ? <span className="flex items-center gap-1.5"><Check size={13} strokeWidth={3} /> Added!</span>
-          : "Add to Cart"}
-      </button>
+      {/* Add to Cart Button */}
+      <div className="w-full md:w-auto">
+        <button
+          onClick={() => item.inStock !== false && onAddToCart(item)}
+          disabled={item.inStock === false}
+          className={`w-full md:w-auto px-5 py-2.5 rounded-lg text-[12px] font-bold uppercase
+                      flex items-center justify-center gap-2 transition-all duration-300
+                      ${cartAdded
+                        ? "bg-green-500 text-white"
+                        : item.inStock !== false
+                        ? "bg-[#7a6030] text-white hover:bg-[#5e4a25]"
+                        : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                      }`}
+        >
+          {cartAdded ? (
+            <>
+              <Check size={14} /> Added
+            </>
+          ) : (
+            <>
+              <ShoppingCart size={14} /> Add to Cart
+            </>
+          )}
+        </button>
+      </div>
     </div>
   );
 }

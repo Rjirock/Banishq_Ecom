@@ -1,18 +1,18 @@
 // app/profile/page.jsx
 "use client";
 
-import { useState, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useRef, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { User, Lock, LogOut, Camera, ChevronRight, ShoppingBag, Sparkles, ArrowRight, UserCircle2 } from "lucide-react";
-import PersonalInformation from "@/components/profile_compo/personal_info/page";
-import LoginPassword from "@/components/profile_compo/login_password/page";
-import LogoutTab from "@/components/profile_compo/log_out/page";
-import MyOrdersTab from "@/components/profile_compo/my-order/page";
+import PersonalInformation from "../../components/profile_compo/personal_info/page";
+import LoginPassword from "../../components/profile_compo/login_password/page";
+import LogoutTab from "../../components/profile_compo/log_out/page";
+import MyOrdersTab from "../../components/profile_compo/my-order/page";
 import { useAuth } from "@/context/AuthContext";
 
 const TABS = [
   { id: "info",     label: "Personal Information", icon: User        },
-  { id: "orders",   label: "My Orders",            icon: ShoppingBag },
+  { id: "my-order",   label: "My Orders",            icon: ShoppingBag },
   { id: "password", label: "Login & Password",     icon: Lock        },
   { id: "logout",   label: "Log Out",              icon: LogOut      },
 ];
@@ -155,10 +155,26 @@ function GuestWall() {
 export default function ProfilePage() {
   const { user, ready } = useAuth();
   const router          = useRouter();
+  const searchParams    = useSearchParams();
 
-  const [activeTab, setActiveTab] = useState("info");
+  const VALID_TABS = ["info", "my-order", "password", "logout"];
+
+  /* Read ?tab= from URL on every navigation */
+  const tabFromUrl = searchParams.get("tab");
+  const resolvedTab = VALID_TABS.includes(tabFromUrl) ? tabFromUrl : "info";
+
+  const [activeTab, setActiveTab] = useState(resolvedTab);
   const [imgSrc,    setImgSrc]    = useState(null);
   const fileRef = useRef(null);
+
+  /* Sync activeTab whenever the URL ?tab= param changes
+     e.g. when redirected from checkout to /profile?tab=orders */
+  useEffect(() => {
+    const t = searchParams.get("tab");
+    if (VALID_TABS.includes(t) && t !== activeTab) {
+      setActiveTab(t);
+    }
+  }, [searchParams]);
 
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
@@ -192,7 +208,7 @@ export default function ProfilePage() {
 
   const renderTab = () => {
     if (activeTab === "info")     return <PersonalInformation key="info" />;
-    if (activeTab === "orders")   return <MyOrdersTab key="orders" />;
+    if (activeTab === "my-order") return <MyOrdersTab />;
     if (activeTab === "password") return <LoginPassword key="password" />;
     if (activeTab === "logout")   return <LogoutTab key="logout" />;
   };
@@ -294,7 +310,10 @@ export default function ProfilePage() {
                     return (
                       <button
                         key={id}
-                        onClick={() => setActiveTab(id)}
+                        onClick={() => {
+  setActiveTab(id);
+  router.push(`/profile?tab=${id}`);
+}}
                         className={`
                           w-full flex items-center gap-3 px-4 py-3 text-left text-[13px]
                           font-medium transition-all duration-200 group relative

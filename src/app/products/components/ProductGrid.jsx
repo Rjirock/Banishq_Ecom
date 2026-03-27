@@ -5,7 +5,9 @@ import Link from "next/link";
 import { useState, useCallback, useMemo } from "react";
 import { Heart, ShoppingCart, Check, Star, PackageX, X } from "lucide-react";
 import { products } from "../../data/product-details/products";
-import { useFilters } from "@/context/FilterContext";
+import { useFilters }  from "@/context/FilterContext";
+import { useWishlist } from "@/context/WishlistContext";
+import { useCart as useCartCtx } from "@/context/CartContext";
 
 /* ─── Filter maps — must match sidebar options exactly ─── */
 const PRICE_RANGES = {
@@ -23,8 +25,68 @@ const RATING_MIN = {
 };
 
 /* ══════════════════════════════════════
-   TOAST
+   WISHLIST TOAST
 ══════════════════════════════════════ */
+function WishlistToast({ item, onClose }) {
+  if (!item) return null;
+  return (
+    <div style={{
+      position:"fixed", bottom:24, left:"50%", transform:"translateX(-50%)",
+      zIndex:10000, width:"min(320px,90vw)",
+      background:"#1a1205",
+      border: item.added ? "1px solid rgba(239,68,68,0.35)" : "1px solid rgba(160,120,60,0.3)",
+      borderRadius:14,
+      boxShadow:"0 8px 32px rgba(0,0,0,0.28)",
+      display:"flex", alignItems:"center", gap:12,
+      padding:"12px 14px",
+      animation:"wishToastIn .3s cubic-bezier(.22,1,.36,1) both",
+      fontFamily:"'Jost',sans-serif",
+    }}>
+      {/* icon */}
+      <div style={{
+        width:34, height:34, borderRadius:"50%", flexShrink:0,
+        background: item.added ? "rgba(239,68,68,.15)" : "rgba(160,120,60,.15)",
+        display:"flex", alignItems:"center", justifyContent:"center",
+      }}>
+        <Heart size={15}
+          fill={item.added ? "#ef4444" : "none"}
+          color={item.added ? "#ef4444" : "#C9A84C"}
+          strokeWidth={2}/>
+      </div>
+
+      {/* text */}
+      <div style={{ flex:1, minWidth:0 }}>
+        <p style={{ fontSize:12.5, fontWeight:700, color:"#f5ede0", margin:0, lineHeight:1.3 }}>
+          {item.added ? "Added to Wishlist ♥" : "Removed from Wishlist"}
+        </p>
+        <p style={{ fontSize:11, color:"#a89272", margin:"2px 0 0",
+          overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
+          {item.name}
+        </p>
+      </div>
+
+      {/* view wishlist link */}
+      {item.added && (
+        <a href="/my-whishlist" style={{
+          fontSize:10.5, fontWeight:700, color:"#C9A84C",
+          textDecoration:"none", letterSpacing:".06em", flexShrink:0,
+          whiteSpace:"nowrap",
+        }}>
+          View →
+        </a>
+      )}
+
+      <button onClick={onClose} style={{
+        background:"none", border:"none", cursor:"pointer",
+        color:"#7a6a50", flexShrink:0, padding:0, lineHeight:1,
+      }}>
+        <X size={13}/>
+      </button>
+    </div>
+  );
+}
+
+
 function ToastStack({ toasts, onRemove }) {
   if (!toasts.length) return null;
   return (
@@ -272,13 +334,14 @@ function SortBar({ total, sortBy, setSortBy }) {
    PAGE
 ══════════════════════════════════════ */
 export default function ProductsPage() {
-  const { filters }             = useFilters();
+  const { filters }                             = useFilters();
+  const { toggleWishlist, isWishlisted }        = useWishlist();
   const [sortBy, setSortBy]     = useState("default");
-  const [cart, setCart]         = useState([]);   // [{ id: slug, qty }]
-  const [wishlist, setWishlist] = useState([]);   // [slug, ...]
+  const [cart, setCart]         = useState([]);
   const [toasts, setToasts]     = useState([]);
+  const [wishToast, setWishToast] = useState(null); // { name, added }
 
-  /* ── toasts ── */
+  /* ── cart toasts ── */
   const pushToast = useCallback((t) => {
     const id = Date.now() + Math.random();
     setToasts((p) => [...p.slice(-2), { ...t, id }]);
@@ -288,18 +351,22 @@ export default function ProductsPage() {
     (id) => setToasts((p) => p.filter((x) => x.id !== id)), []
   );
 
-  /* ── wishlist ── */
-  const toggleWishlist = useCallback((product) => {
-    const isLiked = wishlist.includes(product.slug);
-    setWishlist((p) =>
-      isLiked ? p.filter((x) => x !== product.slug) : [...p, product.slug]
-    );
-    pushToast({
-      type: "wish", liked: !isLiked,
-      title: isLiked ? "Removed from Wishlist" : "Added to Wishlist ♥",
-      sub: product.name,
+  /* ── wishlist — uses global context + shows mini toast ── */
+  const handleWishlist = useCallback((product) => {
+    const wasLiked = isWishlisted(product.slug ?? product.id);
+    toggleWishlist({
+      id:            product.slug ?? product.id,
+      name:          product.name,
+      brand:         product.category ?? "",
+      image:         product.images?.[0] ?? product.image ?? "",
+      price:         Number(product.price),
+      originalPrice: Number(product.oldPrice ?? product.price),
+      discount:      product.discount ?? 0,
     });
-  }, [wishlist, pushToast]);
+    // show mini wishlist toast
+    setWishToast({ name: product.name, added: !wasLiked });
+    setTimeout(() => setWishToast(null), 2800);
+  }, [toggleWishlist, isWishlisted]);
 
   /* ── cart ── */
   const addToCart = useCallback((product) => {
@@ -384,9 +451,9 @@ export default function ProductsPage() {
           from { opacity: 0; transform: translateY(10px); }
           to   { opacity: 1; transform: translateY(0); }
         }
-        @keyframes toastIn {
-          from { opacity: 0; transform: translateY(12px) scale(0.96); }
-          to   { opacity: 1; transform: translateY(0) scale(1); }
+        @keyframes wishToastIn {
+          from { opacity:0; transform:translateX(-50%) translateY(16px) scale(0.95); }
+          to   { opacity:1; transform:translateX(-50%) translateY(0)    scale(1);    }
         }
         .toast-anim { animation: toastIn 0.28s cubic-bezier(0.34,1.4,0.64,1) both; }
       `}</style>
@@ -429,9 +496,9 @@ export default function ProductsPage() {
                 <div key={product.slug} style={{ animationDelay: `${i * 0.04}s` }}>
                   <ProductCard
                     product={product}
-                    liked={wishlist.includes(product.slug)}
+                    liked={isWishlisted(product.slug ?? product.id)}
                     cartQty={cart.find((x) => x.id === product.slug)?.qty ?? 0}
-                    onLike={() => toggleWishlist(product)}
+                    onLike={() => handleWishlist(product)}
                     onCart={() => addToCart(product)}
                   />
                 </div>
@@ -441,6 +508,7 @@ export default function ProductsPage() {
         </div>
 
         <ToastStack toasts={toasts} onRemove={removeToast} />
+        <WishlistToast item={wishToast} onClose={() => setWishToast(null)} />
       </div>
     </>
   );

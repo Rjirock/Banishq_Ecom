@@ -6,6 +6,9 @@ import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
 import CartToast from "../components/Carttoast/page";
 import { WishlistProvider } from "@/context/WishlistContext";
+import { OrderProvider } from "@/context/OrderContext";
+
+
 const poppins = Poppins({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
@@ -33,6 +36,7 @@ export default function RootLayout({ children }) {
       }}>
         <AuthProvider>
           <CartProvider>
+            <OrderProvider>
             <WishlistProvider>
               <Header />
               <CartToast />
@@ -40,6 +44,7 @@ export default function RootLayout({ children }) {
                 {children}
               </main>
             </WishlistProvider>
+            </OrderProvider>
           </CartProvider>
           <Footer />
         </AuthProvider>

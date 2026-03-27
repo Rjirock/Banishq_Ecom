@@ -249,7 +249,7 @@ export default function Header() {
                         </div>
                         {[
                           { icon: User,     label: "My Profile", href: "/profile" },
-                          { icon: Settings, label: "My Orders",  href: "/profile"  },
+                          { icon: Settings, label: "My Orders",  href: "profile?tab=my-order"  },
                         ].map(({ icon: Icon, label, href }) => (
                           <Link key={href} href={href}
                             onClick={() => setDropdownOpen(false)}

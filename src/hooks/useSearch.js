@@ -18,7 +18,7 @@ const PAGES = [
   { type:"page", name:"About Us",   href:"/about",         hint:"Our story"       },
   { type:"page", name:"Contact Us", href:"/contact",       hint:"Get in touch"    },
   { type:"page", name:"Cart",       href:"/cart",          hint:"Shopping cart"   },
-  { type:"page", name:"My Orders",  href:"/orders",        hint:"Order history"   },
+  { type:"page", name:"My Orders",  href:"/profile?tab=orders", hint:"Order history"   },
   { type:"page", name:"Wishlist",   href:"/my-whishlist",  hint:"Saved items"     },
   { type:"page", name:"Profile",    href:"/profile",       hint:"Your account"    },
 ];
