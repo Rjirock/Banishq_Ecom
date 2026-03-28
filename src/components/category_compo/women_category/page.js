@@ -13,7 +13,7 @@ import { useWishlist } from "@/context/WishlistContext";
 import {
     womenProducts,
     womenCategories,
-} from "../data/women/women_data";
+} from "../../../app/data/women_category_data/women_data";
 
 /* ─────────────────────────────────────────
    GLOBAL STYLES
