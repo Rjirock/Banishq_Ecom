@@ -8,12 +8,12 @@ import {
     SlidersHorizontal, Search, X,
     Sparkles, ChevronDown, ArrowRight,
 } from "lucide-react";
-import { useCart } from "@/context/CartContext";
+import { useCart }     from "@/context/CartContext";
+import { useWishlist } from "@/context/WishlistContext";
 import {
     womenProducts,
     womenCategories,
-} from "../../../app/data/women_category_data/women_data";
-import { useWishlist } from "@/context/WishlistContext";
+} from "../data/women/women_data";
 
 /* ─────────────────────────────────────────
    GLOBAL STYLES
@@ -97,68 +97,74 @@ const STYLES = `
   .wish-btn{transition:background .2s,border-color .2s,color .2s}
   .wish-btn:hover{background:#fff5f5 !important;border-color:#fca5a5 !important}
   .wish-btn.active{background:#fff5f5;border-color:#fca5a5;color:#ef4444}
+  @keyframes wishToastIn {
+    from { opacity:0; transform:translateX(-50%) translateY(16px) scale(.94); }
+    to   { opacity:1; transform:translateX(-50%) translateY(0)     scale(1);   }
+  }
+
 `;
+
+
 /* ══════════════════════════════════════
    WISHLIST TOAST
 ══════════════════════════════════════ */
 function WishlistToast({ item, onClose }) {
-    if (!item) return null;
-    return (
+  if (!item) return null;
+  return (
+    <div style={{
+      position:"fixed", bottom:24, left:"50%",
+      transform:"translateX(-50%)",
+      zIndex:10000, width:"min(340px,92vw)",
+      background:"#1a1205",
+      border: item.added ? "1px solid rgba(239,68,68,0.3)" : "1px solid rgba(160,120,60,0.3)",
+      borderRadius:14,
+      boxShadow:"0 8px 32px rgba(0,0,0,.28)",
+      display:"flex", alignItems:"center", gap:12,
+      padding:"12px 14px",
+      animation:"wishToastIn .3s cubic-bezier(.22,1,.36,1) both",
+      fontFamily:"'Jost',sans-serif",
+    }}>
       <div style={{
-        position:"fixed", bottom:24, left:"50%", transform:"translateX(-50%)",
-        zIndex:10000, width:"min(320px,90vw)",
-        background:"#1a1205",
-        border: item.added ? "1px solid rgba(239,68,68,0.35)" : "1px solid rgba(160,120,60,0.3)",
-        borderRadius:14,
-        boxShadow:"0 8px 32px rgba(0,0,0,0.28)",
-        display:"flex", alignItems:"center", gap:12,
-        padding:"12px 14px",
-        animation:"wishToastIn .3s cubic-bezier(.22,1,.36,1) both",
-        fontFamily:"'Jost',sans-serif",
+        width:34, height:34, borderRadius:"50%", flexShrink:0,
+        background: item.added ? "rgba(239,68,68,.15)" : "rgba(160,120,60,.15)",
+        display:"flex", alignItems:"center", justifyContent:"center",
       }}>
-        {/* icon */}
-        <div style={{
-          width:34, height:34, borderRadius:"50%", flexShrink:0,
-          background: item.added ? "rgba(239,68,68,.15)" : "rgba(160,120,60,.15)",
-          display:"flex", alignItems:"center", justifyContent:"center",
-        }}>
-          <Heart size={15}
-            fill={item.added ? "#ef4444" : "none"}
-            color={item.added ? "#ef4444" : "#C9A84C"}
-            strokeWidth={2}/>
-        </div>
-   
-        {/* text */}
-        <div style={{ flex:1, minWidth:0 }}>
-          <p style={{ fontSize:12.5, fontWeight:700, color:"#f5ede0", margin:0, lineHeight:1.3 }}>
-            {item.added ? "Added to Wishlist ♥" : "Removed from Wishlist"}
-          </p>
-          <p style={{ fontSize:11, color:"#a89272", margin:"2px 0 0",
-            overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
-            {item.name}
-          </p>
-        </div>
-   
-        {/* view wishlist link */}
-        {item.added && (
-          <a href="/my-whishlist" style={{
-            fontSize:10.5, fontWeight:700, color:"#C9A84C",
-            textDecoration:"none", letterSpacing:".06em", flexShrink:0,
-            whiteSpace:"nowrap",
-          }}>
-            View →
-          </a>
-        )}
-   
-        <button onClick={onClose} style={{
-          background:"none", border:"none", cursor:"pointer",
-          color:"#7a6a50", flexShrink:0, padding:0, lineHeight:1,
-        }}>
-          <X size={13}/>
-        </button>
+        <Heart size={15}
+          fill={item.added ? "#ef4444" : "none"}
+          color={item.added ? "#ef4444" : "#C9A84C"}
+          strokeWidth={2}
+        />
       </div>
-    );
-  }
+      <div style={{ flex:1, minWidth:0 }}>
+        <p style={{ fontSize:13, fontWeight:700, color:item.added ? "#f5ede0" : "#c9a880", margin:0, lineHeight:1.3 }}>
+          {item.added ? "Added to Wishlist ♥" : "Removed from Wishlist"}
+        </p>
+        <p style={{ fontSize:11, color:"#a89272", margin:"2px 0 0",
+          overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
+          {item.name}
+        </p>
+      </div>
+      {item.added && (
+        <a href="/wishlist" style={{
+          fontSize:11, fontWeight:700, color:"#C9A84C",
+          textDecoration:"none", letterSpacing:".06em",
+          flexShrink:0, whiteSpace:"nowrap",
+          border:"1px solid rgba(201,168,76,.3)",
+          padding:"4px 10px", borderRadius:99,
+        }}>
+          View →
+        </a>
+      )}
+      <button onClick={onClose} style={{
+        background:"none", border:"none", cursor:"pointer",
+        color:"#7a6a50", flexShrink:0, padding:0, lineHeight:1,
+      }}>
+        <X size={13}/>
+      </button>
+    </div>
+  );
+}
+
 /* ─────────────────────────────────────────
    SCROLL REVEAL HOOK
 ───────────────────────────────────────── */
@@ -179,8 +185,9 @@ function useReveal(threshold = 0.1) {
 /* ─────────────────────────────────────────
    SINGLE PRODUCT CARD
 ───────────────────────────────────────── */
-function ProductCard({ product, delay = 0 }) {
-    const { addItem } = useCart();
+function ProductCard({ product, delay = 0, onWishlistChange }) {
+    const { addItem }                   = useCart();
+    const { toggleItem, isWishlisted }  = useWishlist();
     const [liked, setLiked] = useState(false);
     const [added, setAdded] = useState(false);
     const [shade, setShade] = useState(product.shades?.[0] ?? null);
@@ -256,20 +263,34 @@ function ProductCard({ product, delay = 0 }) {
                     </div>
                 )}
 
-                {/* wishlist */}
+                {/* wishlist — connected to WishlistContext */}
                 <button
-                    className={`wish-btn ${liked ? "active" : ""}`}
-                    onClick={() => setLiked(!liked)}
+                    className={`wish-btn ${isWishlisted(product.id) ? "active" : ""}`}
+                    onClick={() => {
+                        const nowLiked = !isWishlisted(product.id);
+                        toggleItem({
+                            id:       product.id,
+                            name:     product.name,
+                            brand:    product.brand    ?? "",
+                            image:    product.image,
+                            price:    product.price,
+                            oldPrice: product.originalPrice ?? product.price,
+                            discount: product.discount ?? 0,
+                            inStock:  true,
+                            slug:     product.slug ?? String(product.id),
+                        });
+                        onWishlistChange?.({ name: product.name, added: nowLiked });
+                    }}
                     style={{
                         position: "absolute", top: 12, right: 12,
                         width: 34, height: 34, borderRadius: "50%",
                         border: "1.5px solid #EDE5D8",
                         background: "#fff", cursor: "pointer",
                         display: "flex", alignItems: "center", justifyContent: "center",
-                        color: liked ? "#ef4444" : "#bbb",
+                        color: isWishlisted(product.id) ? "#ef4444" : "#bbb",
                     }}
                 >
-                    <Heart size={15} fill={liked ? "#ef4444" : "none"} strokeWidth={1.8} />
+                    <Heart size={15} fill={isWishlisted(product.id) ? "#ef4444" : "none"} strokeWidth={1.8} />
                 </button>
             </div>
 
@@ -406,6 +427,15 @@ export default function WomenPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [sortBy, setSortBy] = useState("popular");
     const [showSort, setShowSort] = useState(false);
+
+    /* ── Wishlist toast ── */
+    const [toast, setToast] = useState(null);
+    const toastTimer = typeof window !== "undefined" ? window : {};
+    const handleWishlistChange = ({ name, added }) => {
+      setToast({ name, added });
+      clearTimeout(toastTimer.__wishTimer);
+      toastTimer.__wishTimer = setTimeout(() => setToast(null), 2800);
+    };
     const [ref, vis] = useReveal(0.05);
 
     /* filter + sort */
@@ -437,6 +467,10 @@ export default function WomenPage() {
     return (
         <>
             <style>{STYLES}</style>
+
+            {/* ── Wishlist toast ── */}
+            <WishlistToast item={toast} onClose={() => setToast(null)} />
+
             <div style={{ minHeight: "100vh", background: "#F4EFE6", overflowX: "hidden" }}>
 
                 {/* ══════════════════════════════════════
@@ -649,7 +683,7 @@ export default function WomenPage() {
                                 gap: 24,
                             }}>
                                 {vis && filtered.map((p, i) => (
-                                    <ProductCard key={p.id} product={p} delay={Math.min(i * 0.06, 0.4)} />
+                                    <ProductCard key={p.id} product={p} delay={Math.min(i * 0.06, 0.4)} onWishlistChange={handleWishlistChange} />
                                 ))}
                             </div>
                         )}
