@@ -50,7 +50,7 @@ function ProductCard({ product }) {
                 <img
                     src={product.image}
                     alt={product.name}
-                    className="w-full h-[180px] sm:h-[200px] md:h-[220px] lg:h-[240px]
+                    className="w-full h-[160px] sm:h-[200px] md:h-[220px] lg:h-[240px]
                                object-cover transition duration-500 hover:scale-105"
                 />
 
@@ -82,10 +82,16 @@ function ProductCard({ product }) {
                     From {product.price}
                 </p>
 
+                {/* ⭐ RATING */}
                 <div className="flex items-center gap-1 sm:gap-2 mt-2">
                     <div className="flex text-[#F4B400]">
                         {[...Array(5)].map((_, i) => (
-                            <Star key={i} size={14} sm:size={16} fill="#F4B400" strokeWidth={0} />
+                            <Star
+                                key={i}
+                                className="w-3.5 h-3.5 sm:w-4 sm:h-4"
+                                fill="#F4B400"
+                                strokeWidth={0}
+                            />
                         ))}
                     </div>
 
