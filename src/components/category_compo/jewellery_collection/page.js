@@ -295,7 +295,7 @@ function ProductCard({ product, delay = 0, onWishlistChange }) {
             </div>
 
             {/* ── DETAILS ──────────────────────── */}
-            <div style={{ padding: "16px 18px 20px" }}>
+            <div className="p-3 sm:p-4 md:p-[16px_18px_20px]">
 
                 {/* subcategory label */}
                 <p style={{

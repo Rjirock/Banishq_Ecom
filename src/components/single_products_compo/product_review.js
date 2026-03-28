@@ -3,9 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { ChevronLeft, ChevronRight, Quote } from "lucide-react";
 
-/* ─────────────────────────────────────────────
-   Utility: render filled / half / empty stars
-───────────────────────────────────────────── */
+/* ⭐ STAR RATING */
 function StarRating({ rating = 5 }) {
   return (
     <div className="flex items-center gap-[3px]">
@@ -16,7 +14,7 @@ function StarRating({ rating = 5 }) {
           <svg
             key={i}
             viewBox="0 0 24 24"
-            className="w-4 h-4"
+            className="w-3.5 h-3.5 sm:w-4 sm:h-4"
             fill={filled ? "#d4a373" : half ? "url(#half)" : "none"}
             stroke="#d4a373"
             strokeWidth={1.5}
@@ -37,12 +35,9 @@ function StarRating({ rating = 5 }) {
   );
 }
 
-/* ─────────────────────────────────────────────
-   Main Component
-───────────────────────────────────────────── */
 export default function ReviewCarousel({ reviews = [] }) {
   const [current, setCurrent] = useState(0);
-  const [direction, setDirection] = useState("next"); // "next" | "prev"
+  const [direction, setDirection] = useState("next");
   const [animating, setAnimating] = useState(false);
   const [visible, setVisible] = useState(true);
   const timerRef = useRef(null);
@@ -60,7 +55,7 @@ export default function ReviewCarousel({ reviews = [] }) {
         setCurrent((index + total) % total);
         setVisible(true);
         setTimeout(() => setAnimating(false), 500);
-      }, 350);
+      }, 300);
     },
     [animating, total]
   );
@@ -68,7 +63,6 @@ export default function ReviewCarousel({ reviews = [] }) {
   const next = useCallback(() => goTo(current + 1, "next"), [current, goTo]);
   const prev = useCallback(() => goTo(current - 1, "prev"), [current, goTo]);
 
-  // Auto-advance every 6 s
   useEffect(() => {
     if (total <= 1) return;
     timerRef.current = setInterval(next, 6000);
@@ -82,7 +76,7 @@ export default function ReviewCarousel({ reviews = [] }) {
 
   if (total === 0) {
     return (
-      <div className="text-center py-16 text-gray-400 italic tracking-wide text-sm">
+      <div className="text-center py-10 sm:py-16 text-gray-400 italic text-sm">
         No reviews yet — be the first to share your experience.
       </div>
     );
@@ -90,173 +84,108 @@ export default function ReviewCarousel({ reviews = [] }) {
 
   const review = reviews[current];
 
-  // Slide-in transforms
-  const enterTranslate =
-    direction === "next" ? "translateX(40px)" : "translateX(-40px)";
-
   return (
-    <>
-      {/* ── Google Font import (Cormorant Garamond) ── */}
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap');
+    <div className="relative w-full max-w-3xl mx-auto px-4 sm:px-6">
 
-        .review-card-enter {
-          opacity: 0;
-          transform: ${enterTranslate} scale(0.98);
-        }
-        .review-card-visible {
-          opacity: 1;
-          transform: translateX(0) scale(1);
-          transition: opacity 0.5s cubic-bezier(0.4,0,0.2,1),
-                      transform 0.5s cubic-bezier(0.4,0,0.2,1);
-        }
-        .review-card-exit {
-          opacity: 0;
-          transform: ${direction === "next" ? "translateX(-40px)" : "translateX(40px)"} scale(0.98);
-          transition: opacity 0.32s ease, transform 0.32s ease;
-        }
+      {/* CARD */}
+      <div className="relative bg-white border border-[#e8ddd0] rounded-xl sm:rounded-2xl
+                      px-5 sm:px-8 md:px-10
+                      py-6 sm:py-8 md:py-10
+                      shadow-[0_4px_30px_rgba(212,163,115,0.10)]
+                      overflow-hidden">
 
-        .nav-btn:hover .nav-arrow {
-          transform: translateX(2px);
-          transition: transform 0.2s ease;
-        }
-        .nav-btn-prev:hover .nav-arrow {
-          transform: translateX(-2px);
-        }
+        <Quote
+          size={50}
+          className="absolute top-3 right-4 sm:top-4 sm:right-6 text-[#f0e8dc]"
+        />
 
-        .dot-pip {
-          transition: width 0.4s cubic-bezier(0.4,0,0.2,1),
-                      background 0.4s ease;
-        }
-      `}</style>
+        <div className={visible ? "opacity-100 transition-all duration-500" : "opacity-0"}>
 
-      <div className="relative w-full max-w-3xl mx-auto select-none">
+          {/* Stars */}
+          <StarRating rating={review.rating ?? 5} />
 
-        {/* ── Card ── */}
-        <div className="relative bg-white border border-[#e8ddd0] rounded-2xl px-10 py-10 shadow-[0_4px_40px_rgba(212,163,115,0.10)] overflow-hidden min-h-[240px]">
+          {/* Comment */}
+          <blockquote className="mt-4 mb-5
+                                 text-[15px] sm:text-[17px] md:text-[20px]
+                                 leading-6 sm:leading-7 md:leading-8
+                                 italic text-black">
+            "{review.comment}"
+          </blockquote>
 
-          {/* Watermark quote mark */}
-          <Quote
-            size={80}
-            className="absolute top-4 right-6 text-[#f0e8dc] pointer-events-none"
-            strokeWidth={1}
-          />
+          {/* USER */}
+          <div className="flex items-center gap-3">
 
-          {/* Animated content */}
-          <div
-            className={visible ? "review-card-visible" : "review-card-enter"}
-            style={
-              visible
-                ? undefined
-                : { opacity: 0, transform: enterTranslate + " scale(0.98)" }
-            }
-          >
-            {/* Stars */}
-            <StarRating rating={review.rating ?? 5} />
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-xs text-white"
+              style={{ background: "linear-gradient(135deg, #d4a373, #a07850)" }}>
+              {review.name?.[0] ?? "?"}
+            </div>
 
-            {/* Comment */}
-            <blockquote
-              className="mt-5 mb-6 text-[20px] leading-8 text-black-1500  italic"
-              style={{ fontFamily: "'Cormorant Garamond', serif" }}
-            >
-              "{review.comment}"
-            </blockquote>
-
-            {/* Reviewer info */}
-            <div className="flex items-center gap-3 mt-2">
-              {/* Avatar initials */}
-              <div
-                className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-semibold tracking-wider text-white shrink-0"
-                style={{
-                  background:
-                    "linear-gradient(135deg, #d4a373 0%, #a07850 100%)",
-                  fontFamily: "'Cormorant Garamond', serif",
-                  fontSize: "13px",
-                }}
-              >
-                {review.name
-                  ?.split(" ")
-                  .map((w) => w[0])
-                  .slice(0, 2)
-                  .join("")
-                  .toUpperCase() ?? "?"}
-              </div>
-
-              <div>
-                <p
-                  className="text-sm font-semibold text-gray-800 leading-none mb-1"
-                  style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "15px" }}
-                >
-                  {review.name}
+            <div>
+              <p className="text-[13px] sm:text-[14px] font-semibold text-gray-800">
+                {review.name}
+              </p>
+              {review.date && (
+                <p className="text-[10px] sm:text-[11px] text-gray-400">
+                  {review.date}
                 </p>
-                {review.date && (
-                  <p className="text-[11px] text-gray-400 tracking-wide uppercase">
-                    {review.date}
-                  </p>
-                )}
-              </div>
-
-              {/* Verified badge */}
-              <span className="ml-auto text-[10px] tracking-widest uppercase text-[#a08060] border border-[#e0cdb8] rounded-full px-2.5 py-1 font-medium">
-                Verified
-              </span>
+              )}
             </div>
+
+            <span className="ml-auto text-[9px] sm:text-[10px]
+                             border px-2 py-1 rounded-full text-[#a08060]">
+              Verified
+            </span>
           </div>
+
         </div>
-
-        {/* ── Navigation ── */}
-        {total > 1 && (
-          <div className="flex items-center justify-between mt-7 px-1">
-
-            {/* Prev */}
-            <button
-              onClick={() => { prev(); resetTimer(); }}
-              disabled={animating}
-              className="nav-btn nav-btn-prev group flex items-center gap-2 text-[12px] uppercase tracking-widest text-[#a08060] hover:text-[#6b4c2a] transition-colors duration-200 disabled:opacity-40"
-            >
-              <div className="w-9 h-9 rounded-full border border-[#ddd0c0] flex items-center justify-center group-hover:border-[#d4a373] group-hover:bg-[#fdf6ee] transition-all duration-200">
-                <ChevronLeft size={16} className="nav-arrow" />
-              </div>
-              <span className="hidden sm:inline">Prev</span>
-            </button>
-
-            {/* Dot indicators */}
-            <div className="flex items-center gap-2">
-              {reviews.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => { goTo(i, i > current ? "next" : "prev"); resetTimer(); }}
-                  className="dot-pip h-[5px] rounded-full"
-                  style={{
-                    width: i === current ? "24px" : "6px",
-                    background: i === current ? "#d4a373" : "#ddd0c0",
-                  }}
-                  aria-label={`Go to review ${i + 1}`}
-                />
-              ))}
-            </div>
-
-            {/* Next */}
-            <button
-              onClick={() => { next(); resetTimer(); }}
-              disabled={animating}
-              className="nav-btn group flex items-center gap-2 text-[12px] uppercase tracking-widest text-[#a08060] hover:text-[#6b4c2a] transition-colors duration-200 disabled:opacity-40"
-            >
-              <span className="hidden sm:inline">Next</span>
-              <div className="w-9 h-9 rounded-full border border-[#ddd0c0] flex items-center justify-center group-hover:border-[#d4a373] group-hover:bg-[#fdf6ee] transition-all duration-200">
-                <ChevronRight size={16} className="nav-arrow" />
-              </div>
-            </button>
-
-          </div>
-        )}
-
-        {/* Counter */}
-        <p className="text-center text-[11px] text-gray-400 mt-4 tracking-widest uppercase">
-          {current + 1} / {total}
-        </p>
-
       </div>
-    </>
+
+      {/* NAVIGATION */}
+      {total > 1 && (
+        <div className="flex items-center justify-between mt-5 sm:mt-7">
+
+          {/* PREV */}
+          <button
+            onClick={() => { prev(); resetTimer(); }}
+            className="flex items-center gap-2 text-[11px] sm:text-[12px]"
+          >
+            <div className="w-8 h-8 sm:w-9 sm:h-9 border rounded-full flex items-center justify-center">
+              <ChevronLeft size={14} />
+            </div>
+            <span className="hidden sm:inline">Prev</span>
+          </button>
+
+          {/* DOTS */}
+          <div className="flex gap-2">
+            {reviews.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => goTo(i)}
+                className={`h-[5px] rounded-full transition-all duration-300 ${
+                  i === current ? "w-5 bg-[#d4a373]" : "w-2 bg-gray-300"
+                }`}
+              />
+            ))}
+          </div>
+
+          {/* NEXT */}
+          <button
+            onClick={() => { next(); resetTimer(); }}
+            className="flex items-center gap-2 text-[11px] sm:text-[12px]"
+          >
+            <span className="hidden sm:inline">Next</span>
+            <div className="w-8 h-8 sm:w-9 sm:h-9 border rounded-full flex items-center justify-center">
+              <ChevronRight size={14} />
+            </div>
+          </button>
+        </div>
+      )}
+
+      {/* COUNTER */}
+      <p className="text-center text-[10px] sm:text-[11px] text-gray-400 mt-3 sm:mt-4">
+        {current + 1} / {total}
+      </p>
+
+    </div>
   );
 }

@@ -215,7 +215,7 @@ function ProductCard({ product, delay = 0, onWishlistChange }) {
             style={{ animationDelay: `${delay}s` }}
         >
             {/* ── IMAGE ─────────────────────────── */}
-            <div style={{ position: "relative", overflow: "hidden", height: 240 }}>
+            <div className="relative overflow-hidden h-[170px] sm:h-[200px] md:h-[240px]">
                 <img
                     src={product.image}
                     alt={product.name}
@@ -295,7 +295,7 @@ function ProductCard({ product, delay = 0, onWishlistChange }) {
             </div>
 
             {/* ── DETAILS ──────────────────────── */}
-            <div style={{ padding: "16px 18px 20px" }}>
+            <div className="p-3 sm:p-4 md:p-[16px_18px_20px]">
 
                 {/* subcategory label */}
                 <p style={{
@@ -436,6 +436,20 @@ export default function WomenPage() {
       clearTimeout(toastTimer.__wishTimer);
       toastTimer.__wishTimer = setTimeout(() => setToast(null), 2800);
     };
+
+    const [visibleCount, setVisibleCount] = useState(20);
+const [isMobile, setIsMobile] = useState(false);
+
+useEffect(() => {
+  const check = () => setIsMobile(window.innerWidth < 640);
+  check();
+  window.addEventListener("resize", check);
+  return () => window.removeEventListener("resize", check);
+}, []);
+
+useEffect(() => {
+  setVisibleCount(isMobile ? 10 : 20);
+}, [activeCategory, searchQuery, sortBy, isMobile]);
     const [ref, vis] = useReveal(0.05);
 
     /* filter + sort */
@@ -568,7 +582,7 @@ export default function WomenPage() {
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 14, marginBottom: 32 }}>
 
                         {/* tabs */}
-                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                        <div className="flex flex-wrap gap-2 sm:gap-3">
                             {womenCategories.map((cat) => {
                                 const active = activeCategory === cat.id;
                                 return (
@@ -677,17 +691,24 @@ export default function WomenPage() {
                                 </button>
                             </div>
                         ) : (
-                            <div style={{
-                                display: "grid",
-                                gridTemplateColumns: "repeat(auto-fill,minmax(240px,1fr))",
-                                gap: 24,
-                            }}>
-                                {vis && filtered.map((p, i) => (
-                                    <ProductCard key={p.id} product={p} delay={Math.min(i * 0.06, 0.4)} onWishlistChange={handleWishlistChange} />
-                                ))}
-                            </div>
+                            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
+                            {vis && filtered.slice(0, visibleCount).map((p, i) => (
+                              <ProductCard key={p.id} product={p} delay={Math.min(i * 0.06, 0.4)} />
+                            ))}
+                          </div>
                         )}
                     </div>
+                    {visibleCount < filtered.length && (
+  <div className="flex justify-center mt-10">
+    <button
+      onClick={() => setVisibleCount(prev => prev + (isMobile ? 10 : 20))}
+      className="px-8 py-3 bg-[#7a6030] text-white text-sm font-bold uppercase tracking-widest
+                 rounded-xl hover:bg-[#5e4a25] transition-all duration-200"
+    >
+      Load More
+    </button>
+  </div>
+)}
                 </div>
 
                 {/* ══════════════════════════════════════
