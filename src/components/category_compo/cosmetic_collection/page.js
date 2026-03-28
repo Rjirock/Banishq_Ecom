@@ -15,37 +15,43 @@ import {
     cosmeticsCategories,
 } from "../../../app/data/cosmetics/cosmetics_data";
 
+/* ══════════════════════════════════════
+   GLOBAL STYLES — fully responsive
+══════════════════════════════════════ */
 const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Jost:wght@300;400;500;600;700&display=swap');
+
   *, *::before, *::after { box-sizing: border-box; font-family:'Jost',sans-serif; }
-  @keyframes fadeUp   { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
-  @keyframes heroIn   { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
-  @keyframes shimmer  { from{transform:translateX(-100%)} to{transform:translateX(250%)} }
-  @keyframes spin     { to{transform:rotate(360deg)} }
-  @keyframes cardIn   { from{opacity:0;transform:translateY(14px) scale(0.97)} to{opacity:1;transform:translateY(0) scale(1)} }
+
+  /* ── Animations ── */
+  @keyframes fadeUp    { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes heroIn    { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes shimmer   { from{transform:translateX(-100%)} to{transform:translateX(250%)} }
+  @keyframes spin      { to{transform:rotate(360deg)} }
+  @keyframes cardIn    { from{opacity:0;transform:translateY(14px) scale(0.97)} to{opacity:1;transform:translateY(0) scale(1)} }
   @keyframes ringPulse {
     0%,100%{box-shadow:0 6px 28px rgba(20,14,4,.3),0 0 0 0 rgba(201,168,76,0)}
     50%    {box-shadow:0 6px 28px rgba(20,14,4,.3),0 0 0 5px rgba(201,168,76,.16)}
   }
-  @keyframes badgePop {
-    0%  {opacity:0;transform:scale(0.6)}
-    70% {transform:scale(1.1)}
-    100%{opacity:1;transform:scale(1)}
-  }
+  @keyframes badgePop  { 0%{opacity:0;transform:scale(0.6)} 70%{transform:scale(1.1)} 100%{opacity:1;transform:scale(1)} }
   @keyframes wishToastIn {
     from { opacity:0; transform:translateX(-50%) translateY(16px) scale(.94); }
     to   { opacity:1; transform:translateX(-50%) translateY(0)    scale(1);   }
   }
+
+  /* ── Utility ── */
   .card-in  { animation:cardIn .4s ease both }
   .hero-in  { animation:heroIn .6s ease both }
   .ornament { animation:spin 48s linear infinite }
+
+  /* ── CTA Button ── */
   .cta-btn {
-    position:relative;overflow:hidden;
-    display:inline-flex;align-items:center;justify-content:center;gap:9px;
-    padding:13px 28px;border-radius:14px;border:none;
+    position:relative; overflow:hidden;
+    display:inline-flex; align-items:center; justify-content:center; gap:9px;
+    padding:13px 28px; border-radius:14px; border:none;
     background:linear-gradient(120deg,#140e04 0%,#3a2408 45%,#5a3a0c 65%,#140e04 100%);
-    color:#fff;font-family:'Jost',sans-serif;font-size:13px;font-weight:700;
-    letter-spacing:.15em;text-transform:uppercase;cursor:pointer;text-decoration:none;
+    color:#fff; font-family:'Jost',sans-serif; font-size:13px; font-weight:700;
+    letter-spacing:.15em; text-transform:uppercase; cursor:pointer; text-decoration:none;
     animation:ringPulse 3.5s ease infinite;
     transition:transform .3s,box-shadow .3s;
   }
@@ -57,15 +63,133 @@ const STYLES = `
   .cta-btn:hover{transform:translateY(-2px);box-shadow:0 14px 38px rgba(20,14,4,.4)}
   .cta-btn:hover .sweep{animation:shimmer .7s ease forwards}
   .cta-btn:active{transform:translateY(0)}
+
+  /* ── Gold rule ── */
   .gold-rule{height:1px;background:linear-gradient(90deg,transparent,#C9A84C,transparent)}
-  .prod-card{background:#fff;border-radius:18px;border:1.5px solid #EDE5D8;
-    box-shadow:0 2px 18px rgba(0,0,0,.05);overflow:hidden;
-    transition:transform .28s ease,box-shadow .28s ease;}
+
+  /* ── Product card ── */
+  .prod-card {
+    background:#fff; border-radius:18px; border:1.5px solid #EDE5D8;
+    box-shadow:0 2px 18px rgba(0,0,0,.05); overflow:hidden;
+    transition:transform .28s ease,box-shadow .28s ease;
+  }
   .prod-card:hover{transform:translateY(-5px);box-shadow:0 14px 40px rgba(0,0,0,.1);}
+
+  /* ── Search input ── */
   .search-inp:focus{outline:none;border-color:#C9A84C !important;box-shadow:0 0 0 3px rgba(201,168,76,.12);}
+
+  /* ── Wishlist button ── */
   .wish-btn{transition:background .2s,border-color .2s,color .2s}
   .wish-btn:hover{background:#fff5f5 !important;border-color:#fca5a5 !important}
   .wish-btn.active{background:#fff5f5;border-color:#fca5a5;color:#ef4444}
+
+  /* ── Category pill ── */
+  .cat-pill {
+    flex-shrink:0; white-space:nowrap; cursor:pointer; border:none;
+    font-family:'Jost',sans-serif; font-weight:600; letter-spacing:.06em;
+    text-transform:uppercase; transition:all .2s ease;
+    -webkit-tap-highlight-color:transparent;
+  }
+
+  /* ── Product image zoom ── */
+  .prod-img { transition:transform .55s ease; }
+  .prod-card:hover .prod-img { transform:scale(1.06); }
+
+  /* ── Grid ── */
+  .products-grid {
+    display:grid;
+    grid-template-columns:repeat(2, 1fr);
+    gap:12px;
+  }
+  @media(min-width:480px){
+    .products-grid { gap:14px; }
+  }
+  @media(min-width:640px){
+    .products-grid { grid-template-columns:repeat(2,1fr); gap:16px; }
+  }
+  @media(min-width:900px){
+    .products-grid { grid-template-columns:repeat(3,1fr); gap:20px; }
+  }
+  @media(min-width:1200px){
+    .products-grid { grid-template-columns:repeat(4,1fr); gap:22px; }
+  }
+
+  /* ── Hero responsive ── */
+  .hero-title {
+    font-family:'Cormorant Garamond',serif;
+    font-size:clamp(30px, 7vw, 68px);
+    font-weight:700; color:#F4EFE6; line-height:1.1;
+    letter-spacing:-.01em; margin:0;
+  }
+  .hero-subtitle {
+    font-size:clamp(13px, 3vw, 16px);
+    color:#a89272; font-weight:400; max-width:480px;
+    margin:0 auto; line-height:1.7;
+  }
+
+  /* ── Filter bar ── */
+  .filter-bar {
+    display:flex; align-items:center; gap:10px;
+    flex-wrap:wrap;
+  }
+  @media(max-width:639px){
+    .filter-bar { gap:8px; }
+  }
+
+  /* ── Sort dropdown ── */
+  .sort-dropdown {
+    position:relative; flex-shrink:0;
+  }
+  .sort-menu {
+    position:absolute; top:calc(100% + 6px); right:0;
+    background:#fff; border:1.5px solid #EDE5D8;
+    border-radius:14px; overflow:hidden; z-index:200;
+    box-shadow:0 12px 40px rgba(0,0,0,.12);
+    min-width:200px;
+    animation:fadeUp .18s ease both;
+  }
+
+  /* ── Search bar ── */
+  .search-wrap {
+    position:relative; flex:1; min-width:0;
+  }
+
+  /* ── Scrollable category pills ── */
+  .cat-scroll {
+    display:flex; gap:8px; overflow-x:auto;
+    padding-bottom:4px; scrollbar-width:none;
+    -ms-overflow-style:none;
+  }
+  .cat-scroll::-webkit-scrollbar { display:none; }
+
+  /* ── Page wrapper ── */
+  .page-inner {
+    max-width:1380px; margin:0 auto;
+    padding:0 16px;
+  }
+  @media(min-width:640px){ .page-inner { padding:0 24px; } }
+  @media(min-width:1024px){ .page-inner { padding:0 40px; } }
+
+  /* ── Load more btn ── */
+  .load-more-btn {
+    padding:13px 36px; border-radius:14px; border:2px solid #C9A84C;
+    background:transparent; color:#7a5f1a; font-family:'Jost',sans-serif;
+    font-size:13px; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
+    cursor:pointer; transition:all .25s ease; display:inline-flex; align-items:center; gap:8px;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .load-more-btn:hover{background:#C9A84C;color:#1a1205;}
+  .load-more-btn:active{transform:scale(.97);}
+
+  /* ── Mobile-only helpers ── */
+  @media(max-width:479px){
+    .prod-price { font-size:15px !important; }
+    .prod-add-btn { padding:10px 0 !important; font-size:11.5px !important; }
+    .prod-save-badge { display:none; }
+  }
+
+  /* ── Prevent overflow ── */
+  html, body { overflow-x:hidden; }
 `;
 
 /* ══════════════════════════════════════
@@ -75,7 +199,7 @@ function WishlistToast({ item, onClose }) {
   if (!item) return null;
   return (
     <div style={{
-      position:"fixed", bottom:24, left:"50%",
+      position:"fixed", bottom:20, left:"50%",
       transform:"translateX(-50%)",
       zIndex:10000, width:"min(340px,92vw)",
       background:"#1a1205",
@@ -121,7 +245,7 @@ function WishlistToast({ item, onClose }) {
       )}
       <button onClick={onClose} style={{
         background:"none", border:"none", cursor:"pointer",
-        color:"#7a6a50", flexShrink:0, padding:0, lineHeight:1,
+        color:"#7a6a50", flexShrink:0, padding:4, lineHeight:1,
       }}>
         <X size={13}/>
       </button>
@@ -147,14 +271,13 @@ function useReveal(threshold = 0.1) {
 }
 
 /* ─────────────────────────────────────────
-   PRODUCT CARD
+   PRODUCT CARD — mobile-first
 ───────────────────────────────────────── */
 function ProductCard({ product, delay = 0, onWishlistChange }) {
     const { addItem }                   = useCart();
     const { toggleItem, isWishlisted }  = useWishlist();
-    const [liked, setLiked] = useState(false);
-    const [added, setAdded] = useState(false);
-    const [shade, setShade] = useState(product.shades?.[0] ?? null);
+    const [added, setAdded]             = useState(false);
+    const [shade, setShade]             = useState(product.shades?.[0] ?? null);
 
     const handleAdd = () => {
         if (added) return;
@@ -171,44 +294,44 @@ function ProductCard({ product, delay = 0, onWishlistChange }) {
     const fmt = (n) => `₹${n.toLocaleString("en-IN")}`;
 
     return (
-        <div className="prod-card card-in" style={{ animationDelay: `${delay}s` }}>
+        <div className="prod-card card-in" style={{ animationDelay:`${delay}s` }}>
             {/* IMAGE */}
-            <div className="relative overflow-hidden h-[170px] sm:h-[200px] md:h-[240px]">
+            <div style={{ position:"relative", overflow:"hidden", aspectRatio:"3/3.2" }}>
                 <img
+                    className="prod-img"
                     src={product.image} alt={product.name}
-                    style={{ width:"100%", height:"100%", objectFit:"cover", display:"block", transition:"transform .55s ease" }}
-                    onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.06)")}
-                    onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+                    style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }}
+                    loading="lazy"
                 />
 
-                {/* discount badge */}
+                {/* Discount badge */}
                 <div style={{
-                    position:"absolute", top:12, left:12,
+                    position:"absolute", top:8, left:8,
                     background:"linear-gradient(120deg,#C9A84C,#e8c96a)",
-                    color:"#1a1205", fontSize:10, fontWeight:800,
-                    padding:"4px 10px", borderRadius:20, letterSpacing:".06em",
+                    color:"#1a1205", fontSize:9, fontWeight:800,
+                    padding:"3px 8px", borderRadius:20, letterSpacing:".05em",
                     boxShadow:"0 3px 10px rgba(201,168,76,.4)",
                 }}>
                     {product.discount}% OFF
                 </div>
 
                 {product.tags?.includes("bestseller") && (
-                    <div style={{ position:"absolute", top:12, right:50,
+                    <div style={{ position:"absolute", top:8, right:44,
                         background:"#1a1205", color:"#C9A84C",
-                        fontSize:9, fontWeight:700, padding:"4px 8px", borderRadius:20,
+                        fontSize:8, fontWeight:700, padding:"3px 7px", borderRadius:20,
                         letterSpacing:".08em", animation:"badgePop .4s ease both" }}>
                         BESTSELLER
                     </div>
                 )}
                 {product.tags?.includes("new") && !product.tags?.includes("bestseller") && (
-                    <div style={{ position:"absolute", top:12, right:50,
+                    <div style={{ position:"absolute", top:8, right:44,
                         background:"#16a34a", color:"#fff",
-                        fontSize:9, fontWeight:700, padding:"4px 8px", borderRadius:20, letterSpacing:".08em" }}>
+                        fontSize:8, fontWeight:700, padding:"3px 7px", borderRadius:20, letterSpacing:".08em" }}>
                         NEW
                     </div>
                 )}
 
-                {/* ── Wishlist button — connected to WishlistContext ── */}
+                {/* Wishlist button */}
                 <button
                     className={`wish-btn ${isWishlisted(product.id) ? "active" : ""}`}
                     onClick={() => {
@@ -227,81 +350,114 @@ function ProductCard({ product, delay = 0, onWishlistChange }) {
                         onWishlistChange?.({ name: product.name, added: nowLiked });
                     }}
                     style={{
-                        position:"absolute", top:12, right:12,
-                        width:34, height:34, borderRadius:"50%",
+                        position:"absolute", top:8, right:8,
+                        width:32, height:32, borderRadius:"50%",
                         border:"1.5px solid #EDE5D8",
-                        background:"#fff", cursor:"pointer",
+                        background:"rgba(255,255,255,0.92)",
+                        backdropFilter:"blur(4px)",
+                        cursor:"pointer",
                         display:"flex", alignItems:"center", justifyContent:"center",
                         color: isWishlisted(product.id) ? "#ef4444" : "#bbb",
+                        padding:0,
                     }}
                 >
-                    <Heart size={15} fill={isWishlisted(product.id) ? "#ef4444" : "none"} strokeWidth={1.8} />
+                    <Heart size={14} fill={isWishlisted(product.id) ? "#ef4444" : "none"} strokeWidth={1.8} />
                 </button>
             </div>
 
             {/* DETAILS */}
-            <div className="p-3 sm:p-4 md:p-[16px_18px_20px]">
-                <p style={{ fontSize:10, fontWeight:700, color:"#C9A84C",
-                    letterSpacing:".14em", textTransform:"uppercase", margin:"0 0 5px" }}>
+            <div style={{ padding:"10px 11px 14px" }}>
+                <p style={{ fontSize:9, fontWeight:700, color:"#C9A84C",
+                    letterSpacing:".12em", textTransform:"uppercase", margin:"0 0 4px",
+                    overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
                     {product.subcategory}
                 </p>
-                <h3 className="text-[13px] sm:text-[15px] md:text-[17px] font-bold text-[#1a1205] leading-snug line-clamp-2">
+                <h3 style={{
+                    fontSize:"clamp(12px,3vw,16px)", fontWeight:700,
+                    color:"#1a1205", lineHeight:1.35,
+                    margin:"0 0 3px",
+                    display:"-webkit-box", WebkitLineClamp:2,
+                    WebkitBoxOrient:"vertical", overflow:"hidden",
+                }}>
                     {product.name}
                 </h3>
-                <p style={{ fontSize:11, color:"#B8A080", fontWeight:600, margin:"0 0 10px", letterSpacing:".04em" }}>
+                <p style={{ fontSize:10, color:"#B8A080", fontWeight:600,
+                    margin:"0 0 7px", letterSpacing:".03em",
+                    overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
                     {product.brand}
                 </p>
-                <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:10 }}>
+
+                {/* Stars */}
+                <div style={{ display:"flex", alignItems:"center", gap:4, marginBottom:8 }}>
                     <div style={{ display:"flex", gap:1 }}>
                         {[...Array(5)].map((_,i) => (
-                            <Star key={i} size={12}
+                            <Star key={i} size={10}
                                 fill={i < Math.round(product.rating) ? "#F4B400" : "none"}
                                 color={i < Math.round(product.rating) ? "#F4B400" : "#ddd"}
                                 strokeWidth={1.5} />
                         ))}
                     </div>
-                    <span style={{ fontSize:11, color:"#A89880" }}>
+                    <span style={{ fontSize:10, color:"#A89880" }}>
                         {product.rating} ({product.reviews})
                     </span>
                 </div>
+
+                {/* Shades — scrollable on mobile */}
                 {product.shades?.length > 0 && (
-                    <div style={{ marginBottom:12 }}>
-                        <p style={{ fontSize:10, color:"#A89880", fontWeight:600, letterSpacing:".08em", margin:"0 0 5px" }}>SHADES</p>
-                        <div style={{ display:"flex", gap:5, flexWrap:"wrap" }}>
+                    <div style={{ marginBottom:10 }}>
+                        <div style={{ display:"flex", gap:4, overflowX:"auto", paddingBottom:2, scrollbarWidth:"none" }}>
                             {product.shades.map(s => (
                                 <button key={s} onClick={() => setShade(s)} style={{
-                                    padding:"3px 10px", borderRadius:20, fontSize:10.5, fontWeight:600, cursor:"pointer",
+                                    flexShrink:0,
+                                    padding:"2px 8px", borderRadius:20, fontSize:9.5, fontWeight:600, cursor:"pointer",
                                     border:`1.5px solid ${shade===s ? "#C9A84C" : "#DDD0BE"}`,
                                     background: shade===s ? "#fdf9f0" : "#fdfaf6",
                                     color: shade===s ? "#7a6030" : "#A89880",
                                     transition:"all .15s",
+                                    whiteSpace:"nowrap",
                                 }}>{s}</button>
                             ))}
                         </div>
                     </div>
                 )}
-                <div style={{ display:"flex", alignItems:"baseline", gap:8, marginBottom:14 }}>
-                    <span style={{ fontSize:18, fontWeight:700, color:"#1a1205" }}>{fmt(product.price)}</span>
-                    <span style={{ fontSize:12, color:"#ccc", textDecoration:"line-through" }}>{fmt(product.originalPrice)}</span>
-                    <span style={{ background:"#FFF9E6", border:"1px solid rgba(201,168,76,.3)",
-                        color:"#7a5f1a", fontSize:10, fontWeight:700, padding:"2px 8px", borderRadius:20 }}>
+
+                {/* Price row */}
+                <div style={{ display:"flex", alignItems:"baseline", gap:5, marginBottom:10, flexWrap:"wrap" }}>
+                    <span className="prod-price" style={{ fontSize:16, fontWeight:700, color:"#1a1205" }}>
+                        {fmt(product.price)}
+                    </span>
+                    <span style={{ fontSize:11, color:"#ccc", textDecoration:"line-through" }}>
+                        {fmt(product.originalPrice)}
+                    </span>
+                    <span className="prod-save-badge" style={{
+                        background:"#FFF9E6", border:"1px solid rgba(201,168,76,.3)",
+                        color:"#7a5f1a", fontSize:9, fontWeight:700,
+                        padding:"1px 6px", borderRadius:20,
+                    }}>
                         Save {fmt(product.originalPrice - product.price)}
                     </span>
                 </div>
-                <button onClick={handleAdd} disabled={added} style={{
-                    width:"100%", padding:"11px 0", borderRadius:12, border:"none",
-                    background: added
-                        ? "linear-gradient(120deg,#d4b87a,#e8c96a)"
-                        : "linear-gradient(120deg,#140e04 0%,#3a2408 45%,#5a3a0c 65%,#140e04 100%)",
-                    color: added ? "#3d2a0a" : "#fff",
-                    fontSize:12.5, fontWeight:700, letterSpacing:".1em", textTransform:"uppercase",
-                    cursor: added ? "default" : "pointer",
-                    display:"flex", alignItems:"center", justifyContent:"center", gap:8,
-                    transition:"all .3s ease",
-                }}>
+
+                {/* Add to cart */}
+                <button
+                    className="prod-add-btn"
+                    onClick={handleAdd}
+                    disabled={added}
+                    style={{
+                        width:"100%", padding:"10px 0", borderRadius:10, border:"none",
+                        background: added
+                            ? "linear-gradient(120deg,#d4b87a,#e8c96a)"
+                            : "linear-gradient(120deg,#140e04 0%,#3a2408 45%,#5a3a0c 65%,#140e04 100%)",
+                        color: added ? "#3d2a0a" : "#fff",
+                        fontSize:11.5, fontWeight:700, letterSpacing:".08em", textTransform:"uppercase",
+                        cursor: added ? "default" : "pointer",
+                        display:"flex", alignItems:"center", justifyContent:"center", gap:6,
+                        transition:"all .3s ease",
+                        WebkitTapHighlightColor:"transparent",
+                    }}>
                     {added
-                        ? <><Check size={14} strokeWidth={2.5}/> Added to Cart</>
-                        : <><ShoppingCart size={14}/> Add to Cart</>
+                        ? <><Check size={13} strokeWidth={2.5}/> Added</>
+                        : <><ShoppingCart size={13}/> Add to Cart</>
                     }
                 </button>
             </div>
@@ -314,36 +470,48 @@ function ProductCard({ product, delay = 0, onWishlistChange }) {
 ───────────────────────────────────────── */
 export default function CosmeticsPage() {
     const [activeCategory, setActiveCategory] = useState("all");
-    const [searchQuery, setSearchQuery] = useState("");
-    const [sortBy, setSortBy] = useState("popular");
-    const [showSort, setShowSort] = useState(false);
+    const [searchQuery, setSearchQuery]       = useState("");
+    const [sortBy, setSortBy]                 = useState("popular");
+    const [showSort, setShowSort]             = useState(false);
 
-    /* ── Wishlist toast ── */
+    /* Wishlist toast */
     const [toast, setToast] = useState(null);
     const toastTimer = typeof window !== "undefined" ? window : {};
     const handleWishlistChange = ({ name, added }) => {
-      setToast({ name, added });
-      clearTimeout(toastTimer.__wishTimer);
-      toastTimer.__wishTimer = setTimeout(() => setToast(null), 2800);
+        setToast({ name, added });
+        clearTimeout(toastTimer.__wishTimer);
+        toastTimer.__wishTimer = setTimeout(() => setToast(null), 2800);
     };
 
     const [visibleCount, setVisibleCount] = useState(20);
-    const [isMobile, setIsMobile] = useState(false);
+    const [isMobile, setIsMobile]         = useState(false);
+
     useEffect(() => {
         const check = () => setIsMobile(window.innerWidth < 640);
         check();
         window.addEventListener("resize", check);
         return () => window.removeEventListener("resize", check);
     }, []);
+
     useEffect(() => {
         setVisibleCount(isMobile ? 10 : 20);
     }, [activeCategory, searchQuery, sortBy, isMobile]);
+
+    /* Close sort dropdown on outside click */
+    useEffect(() => {
+        if (!showSort) return;
+        const handler = (e) => {
+            if (!e.target.closest(".sort-dropdown")) setShowSort(false);
+        };
+        document.addEventListener("mousedown", handler);
+        return () => document.removeEventListener("mousedown", handler);
+    }, [showSort]);
 
     const [ref, vis] = useReveal(0.05);
 
     const filtered = cosmeticsProducts
         .filter(p => {
-            const matchCat = activeCategory === "all" || p.category === activeCategory;
+            const matchCat    = activeCategory === "all" || p.category === activeCategory;
             const matchSearch = searchQuery === "" ||
                 p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 p.brand.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -359,219 +527,289 @@ export default function CosmeticsPage() {
         });
 
     const SORT_OPTIONS = [
-        { val: "popular",    label: "Most Popular"       },
-        { val: "rating",     label: "Top Rated"          },
-        { val: "discount",   label: "Biggest Discount"   },
-        { val: "price-asc",  label: "Price: Low → High"  },
-        { val: "price-desc", label: "Price: High → Low"  },
+        { val:"popular",    label:"Most Popular"       },
+        { val:"rating",     label:"Top Rated"          },
+        { val:"discount",   label:"Biggest Discount"   },
+        { val:"price-asc",  label:"Price: Low → High"  },
+        { val:"price-desc", label:"Price: High → Low"  },
     ];
+
+    const activeSortLabel = SORT_OPTIONS.find(o => o.val === sortBy)?.label ?? "Sort";
 
     return (
         <>
             <style>{STYLES}</style>
-
-            {/* ── Wishlist toast notification ── */}
             <WishlistToast item={toast} onClose={() => setToast(null)} />
 
             <div style={{ minHeight:"100vh", background:"#F4EFE6", overflowX:"hidden" }}>
 
-                {/* HERO */}
+                {/* ══════ HERO ══════ */}
                 <div style={{
                     position:"relative",
                     background:"linear-gradient(160deg,#12100c 0%,#251c10 55%,#1a1205 100%)",
-                    padding:"72px 24px 90px", textAlign:"center", overflow:"hidden",
+                    padding:"clamp(44px,8vw,80px) 20px clamp(52px,9vw,96px)",
+                    textAlign:"center", overflow:"hidden",
                 }}>
+                    {/* Noise texture overlay */}
                     <div style={{ position:"absolute", inset:0, opacity:.32, pointerEvents:"none",
                         backgroundImage:"url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E\")" }} />
-                    <svg className="ornament" style={{ position:"absolute", top:-60, left:-60, opacity:.06, width:220, height:220 }} viewBox="0 0 200 200">
+
+                    {/* Decorative rings */}
+                    <svg className="ornament" style={{ position:"absolute", top:-60, left:-60, opacity:.06, width:180, height:180 }} viewBox="0 0 200 200">
                         <circle cx="100" cy="100" r="90" fill="none" stroke="#C9A84C" strokeWidth="1" strokeDasharray="6 8"/>
                         <circle cx="100" cy="100" r="65" fill="none" stroke="#C9A84C" strokeWidth=".5" strokeDasharray="3 10"/>
                     </svg>
-                    <svg className="ornament" style={{ position:"absolute", bottom:-70, right:-70, opacity:.07, width:250, height:250, animationDirection:"reverse" }} viewBox="0 0 200 200">
+                    <svg className="ornament" style={{ position:"absolute", bottom:-70, right:-70, opacity:.07, width:200, height:200, animationDirection:"reverse" }} viewBox="0 0 200 200">
                         <circle cx="100" cy="100" r="90" fill="none" stroke="#C9A84C" strokeWidth="1" strokeDasharray="4 10"/>
                     </svg>
 
-                    <p className="hero-in" style={{ fontSize:12, color:"#9a7d50", letterSpacing:".1em", marginBottom:18 }}>
+                    {/* Breadcrumb */}
+                    <p className="hero-in" style={{ fontSize:11, color:"#9a7d50", letterSpacing:".1em", marginBottom:16 }}>
                         <Link href="/" style={{ color:"#9a7d50", textDecoration:"none" }}>Home</Link>
                         <span style={{ margin:"0 7px", color:"#C9A84C" }}>›</span>
                         <span style={{ color:"#C9A84C", fontWeight:600 }}>Cosmetics</span>
                     </p>
-                    <div className="hero-in" style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:10, marginBottom:16, animationDelay:".1s" }}>
-                        <div style={{ height:1, width:44, background:"linear-gradient(90deg,transparent,#C9A84C)" }}/>
-                        <span style={{ fontSize:11, fontWeight:700, letterSpacing:".28em", color:"#C9A84C", textTransform:"uppercase" }}>Beauty & Glow</span>
-                        <div style={{ height:1, width:44, background:"linear-gradient(90deg,#C9A84C,transparent)" }}/>
+
+                    {/* Icon row */}
+                    <div className="hero-in" style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:10, marginBottom:14, animationDelay:".1s" }}>
+                        <div style={{ height:1, width:"clamp(24px,5vw,44px)", background:"linear-gradient(90deg,transparent,#C9A84C)" }}/>
+                        <Sparkles size={16} color="#C9A84C" strokeWidth={1.5}/>
+                        <div style={{ height:1, width:"clamp(24px,5vw,44px)", background:"linear-gradient(270deg,transparent,#C9A84C)" }}/>
                     </div>
-                    <h1 className="hero-in" style={{
-                        fontFamily:"'Cormorant Garamond',serif",
-                        fontSize:"clamp(36px,6vw,70px)", fontWeight:700,
-                        color:"#f5ede0", lineHeight:1.08, margin:"0 auto 18px", maxWidth:680, animationDelay:".2s",
-                    }}>
-                        Luxury Beauty,<br/>
-                        <em style={{ color:"#C9A84C", fontStyle:"italic" }}>Crafted for You</em>
+
+                    {/* Title */}
+                    <h1 className="hero-title hero-in" style={{ animationDelay:".15s" }}>
+                        Luxury Cosmetics
                     </h1>
-                    <p className="hero-in" style={{ fontSize:15, color:"#a89272", maxWidth:460, margin:"0 auto 32px", lineHeight:1.8, animationDelay:".35s" }}>
-                        Curated cosmetics from world-class brands — skincare, makeup, fragrances and more.
+                    <p className="hero-subtitle hero-in" style={{ margin:"16px auto 28px", animationDelay:".2s" }}>
+                        Curated beauty essentials — from skincare rituals to bold lip colours, crafted for the modern woman.
                     </p>
-                    <div className="hero-in" style={{ maxWidth:480, margin:"0 auto", position:"relative", animationDelay:".45s" }}>
-                        <Search size={16} color="#A89880" style={{ position:"absolute", left:18, top:"50%", transform:"translateY(-50%)" }}/>
-                        <input
-                            className="search-inp"
-                            value={searchQuery}
-                            onChange={e => setSearchQuery(e.target.value)}
-                            placeholder="Search products, brands, shades…"
-                            style={{
-                                width:"100%", border:"1.5px solid rgba(201,168,76,.3)",
-                                borderRadius:40, padding:"14px 18px 14px 46px",
-                                fontSize:14, fontWeight:500, color:"#1a1205",
-                                background:"rgba(255,255,255,.92)", fontFamily:"'Jost',sans-serif",
-                            }}
-                        />
-                        {searchQuery && (
-                            <button onClick={() => setSearchQuery("")} style={{ position:"absolute", right:16, top:"50%", transform:"translateY(-50%)", background:"none", border:"none", cursor:"pointer", color:"#A89880" }}>
-                                <X size={15}/>
-                            </button>
-                        )}
-                    </div>
-                    <svg viewBox="0 0 1440 56" style={{ position:"absolute", bottom:0, left:0, width:"100%", display:"block" }}>
-                        <path d="M0,28 C360,56 1080,0 1440,28 L1440,56 L0,56 Z" fill="#F4EFE6"/>
-                    </svg>
-                </div>
 
-                {/* CATEGORY TABS + SORT + GRID */}
-                <div style={{ maxWidth:1240, margin:"0 auto", padding:"40px 24px 80px" }}>
-                    <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:14, marginBottom:32 }}>
-                        <div className="flex flex-wrap gap-2 sm:gap-3">
-                            {cosmeticsCategories.map(cat => {
-                                const active = activeCategory === cat.id;
-                                return (
-                                    <button key={cat.id} onClick={() => setActiveCategory(cat.id)} style={{
-                                        padding:"9px 20px", borderRadius:30,
-                                        border:`2px solid ${active ? "#C9A84C" : "#DDD0BE"}`,
-                                        background: active ? "#C9A84C" : "#fff",
-                                        color: active ? "#1a1205" : "#888",
-                                        fontSize:13, fontWeight:700, cursor:"pointer", letterSpacing:".04em",
-                                        boxShadow: active ? "0 3px 14px rgba(201,168,76,.3)" : "none",
-                                        transition:"all .2s ease",
-                                    }}>
-                                        {cat.label}
-                                        <span style={{ marginLeft:6, fontSize:11, opacity:.7 }}>
-                                            ({cat.id === "all" ? cosmeticsProducts.length : cosmeticsProducts.filter(p => p.category === cat.id).length})
-                                        </span>
-                                    </button>
-                                );
-                            })}
-                        </div>
-                        <div style={{ position:"relative" }}>
-                            <button onClick={() => setShowSort(!showSort)} style={{
-                                display:"flex", alignItems:"center", gap:8,
-                                padding:"9px 16px", borderRadius:12,
-                                border:"1.5px solid #DDD0BE", background:"#fff",
-                                color:"#5c4220", fontSize:13, fontWeight:600, cursor:"pointer", transition:"border-color .2s",
-                            }}
-                                onMouseEnter={e => e.currentTarget.style.borderColor = "#C9A84C"}
-                                onMouseLeave={e => { if (!showSort) e.currentTarget.style.borderColor = "#DDD0BE"; }}
-                            >
-                                <SlidersHorizontal size={14} color="#C9A84C"/>
-                                {SORT_OPTIONS.find(s => s.val === sortBy)?.label}
-                                <ChevronDown size={13} style={{ transition:"transform .2s", transform: showSort ? "rotate(180deg)" : "rotate(0)" }}/>
-                            </button>
-                            {showSort && (
-                                <div style={{ position:"absolute", top:"calc(100% + 8px)", right:0, zIndex:100, background:"#fff", borderRadius:14, border:"1.5px solid #EDE5D8", boxShadow:"0 8px 32px rgba(0,0,0,.1)", minWidth:200, overflow:"hidden" }}>
-                                    {SORT_OPTIONS.map(opt => (
-                                        <button key={opt.val} onClick={() => { setSortBy(opt.val); setShowSort(false); }} style={{
-                                            display:"block", width:"100%", textAlign:"left",
-                                            padding:"11px 16px", border:"none", cursor:"pointer",
-                                            fontSize:13, fontWeight: sortBy===opt.val ? 700 : 500,
-                                            color: sortBy===opt.val ? "#7a6030" : "#5c4220",
-                                            background: sortBy===opt.val ? "#fdf9f0" : "#fff", transition:"background .15s",
-                                        }}
-                                            onMouseEnter={e => { if (sortBy!==opt.val) e.currentTarget.style.background="#fdfaf6"; }}
-                                            onMouseLeave={e => { if (sortBy!==opt.val) e.currentTarget.style.background="#fff"; }}
-                                        >{opt.label}</button>
-                                    ))}
+                    <div className="gold-rule" style={{ maxWidth:260, margin:"0 auto 28px" }} />
+
+                    <div className="hero-in" style={{ animationDelay:".28s", display:"flex", justifyContent:"center", gap:12, flexWrap:"wrap" }}>
+                        <a href="#products" className="cta-btn">
+                            <span className="sweep"/>
+                            <Sparkles size={14}/>
+                            Shop Now
+                            <ArrowRight size={14}/>
+                        </a>
+                    </div>
+
+                    {/* Stats bar */}
+                    <div className="hero-in" style={{
+                        display:"flex", justifyContent:"center", gap:"clamp(16px,5vw,48px)",
+                        marginTop:"clamp(28px,5vw,44px)", animationDelay:".32s",
+                        flexWrap:"wrap",
+                    }}>
+                        {[
+                            { val:`${cosmeticsProducts.length}+`, label:"Products" },
+                            { val:"50+", label:"Brands" },
+                            { val:"4.8★", label:"Avg Rating" },
+                        ].map(s => (
+                            <div key={s.label} style={{ textAlign:"center" }}>
+                                <div style={{ fontSize:"clamp(18px,4vw,26px)", fontWeight:700,
+                                    fontFamily:"'Cormorant Garamond',serif", color:"#C9A84C" }}>
+                                    {s.val}
                                 </div>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="gold-rule" style={{ marginBottom:20 }}/>
-                    <p style={{ fontSize:12, color:"#A89880", marginBottom:24, fontWeight:500 }}>
-                        Showing <strong style={{ color:"#5c4220" }}>{filtered.length}</strong> products
-                        {activeCategory !== "all" && (
-                            <> in <strong style={{ color:"#C9A84C" }}>{cosmeticsCategories.find(c => c.id===activeCategory)?.label}</strong></>
-                        )}
-                        {searchQuery && <> for "<strong style={{ color:"#5c4220" }}>{searchQuery}</strong>"</>}
-                    </p>
-
-                    <div ref={ref}>
-                        {filtered.length === 0 ? (
-                            <div style={{ textAlign:"center", padding:"72px 0" }}>
-                                <p style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:24, fontWeight:700, color:"#1a1205", marginBottom:8 }}>No products found</p>
-                                <p style={{ fontSize:13, color:"#A89880", marginBottom:20 }}>Try a different search or browse all categories.</p>
-                                <button onClick={() => { setSearchQuery(""); setActiveCategory("all"); }} className="cta-btn">
-                                    <span className="sweep"/>
-                                    <span style={{ position:"relative", zIndex:1 }}>View All Products</span>
-                                    <ArrowRight size={13} style={{ position:"relative", zIndex:1 }}/>
-                                </button>
+                                <div style={{ fontSize:10, color:"#7a6a50", letterSpacing:".1em",
+                                    textTransform:"uppercase", fontWeight:600 }}>
+                                    {s.label}
+                                </div>
                             </div>
-                        ) : (
-                            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-                                {vis && filtered.slice(0, visibleCount).map((p, i) => (
-                                    <ProductCard key={p.id} product={p} delay={Math.min(i * 0.06, 0.4)} onWishlistChange={handleWishlistChange} />
-                                ))}
-                            </div>
-                        )}
+                        ))}
                     </div>
-
-                    {visibleCount < filtered.length && (
-                        <div className="flex justify-center mt-10">
-                            <button onClick={() => setVisibleCount(prev => prev + (isMobile ? 10 : 20))}
-                                className="px-8 py-3 bg-[#7a6030] text-white text-sm font-bold uppercase tracking-widest rounded-xl hover:bg-[#5e4a25] transition-all duration-200">
-                                Load More
-                            </button>
-                        </div>
-                    )}
                 </div>
 
-                {/* BRAND STRIP */}
-                <div style={{ background:"#F0E9DB", borderTop:"1.5px solid #E5D9C8", borderBottom:"1.5px solid #E5D9C8", padding:"32px 24px" }}>
-                    <div style={{ maxWidth:1100, margin:"0 auto" }}>
-                        <p style={{ fontSize:11, fontWeight:700, letterSpacing:".2em", color:"#A89880", textTransform:"uppercase", textAlign:"center", marginBottom:20 }}>Our Brands</p>
-                        <div style={{ display:"flex", justifyContent:"center", gap:40, flexWrap:"wrap", alignItems:"center" }}>
-                            {["LuxeGlow","Dermé Paris","AuraSkin","KohlQueen","PureRoots","Maison Saffron"].map(b => (
-                                <span key={b} style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:18, fontWeight:700, color:"#B8A080", letterSpacing:".06em", cursor:"pointer", transition:"color .2s" }}
-                                    onMouseEnter={e => e.currentTarget.style.color = "#C9A84C"}
-                                    onMouseLeave={e => e.currentTarget.style.color = "#B8A080"}
-                                >{b}</span>
+                {/* ══════ FILTER + SEARCH BAR ══════ */}
+                <div id="products" style={{ position:"sticky", top:0, zIndex:100,
+                    background:"rgba(244,239,230,0.96)", backdropFilter:"blur(12px)",
+                    borderBottom:"1px solid #E8DFD0",
+                    padding:"12px 0",
+                }}>
+                    <div className="page-inner">
+                        {/* Row 1: Search + Sort */}
+                        <div style={{ display:"flex", gap:8, marginBottom:10, alignItems:"center" }}>
+
+                            {/* Search */}
+                            <div className="search-wrap">
+                                <Search size={14} color="#C9A84C" style={{ position:"absolute", left:12, top:"50%", transform:"translateY(-50%)", pointerEvents:"none" }}/>
+                                <input
+                                    className="search-inp"
+                                    type="search"
+                                    placeholder="Search products…"
+                                    value={searchQuery}
+                                    onChange={e => setSearchQuery(e.target.value)}
+                                    style={{
+                                        width:"100%",
+                                        padding:"9px 36px 9px 36px",
+                                        borderRadius:12, border:"1.5px solid #E8DFD0",
+                                        background:"#fff", fontSize:13,
+                                        color:"#1a1205", transition:"border .2s,box-shadow .2s",
+                                    }}
+                                />
+                                {searchQuery && (
+                                    <button onClick={() => setSearchQuery("")} style={{
+                                        position:"absolute", right:10, top:"50%", transform:"translateY(-50%)",
+                                        background:"none", border:"none", cursor:"pointer", padding:2, color:"#bbb",
+                                    }}>
+                                        <X size={13}/>
+                                    </button>
+                                )}
+                            </div>
+
+                            {/* Sort */}
+                            <div className="sort-dropdown">
+                                <button onClick={() => setShowSort(v => !v)} style={{
+                                    display:"flex", alignItems:"center", gap:6,
+                                    padding:"9px 12px", borderRadius:12,
+                                    border:"1.5px solid #E8DFD0", background:"#fff",
+                                    fontSize:12, fontWeight:600, color:"#5a4020",
+                                    cursor:"pointer", whiteSpace:"nowrap",
+                                    WebkitTapHighlightColor:"transparent",
+                                }}>
+                                    <SlidersHorizontal size={13} color="#C9A84C"/>
+                                    <span style={{ display: isMobile ? "none" : "inline" }}>{activeSortLabel}</span>
+                                    <ChevronDown size={12} color="#C9A84C" style={{ transform: showSort ? "rotate(180deg)" : "none", transition:"transform .2s" }}/>
+                                </button>
+
+                                {showSort && (
+                                    <div className="sort-menu">
+                                        {SORT_OPTIONS.map(opt => (
+                                            <button key={opt.val} onClick={() => { setSortBy(opt.val); setShowSort(false); }}
+                                                style={{
+                                                    width:"100%", padding:"11px 16px",
+                                                    background: sortBy===opt.val ? "#FFF9E6" : "transparent",
+                                                    border:"none", textAlign:"left",
+                                                    fontSize:13, fontWeight: sortBy===opt.val ? 700 : 500,
+                                                    color: sortBy===opt.val ? "#7a5f1a" : "#5a4020",
+                                                    cursor:"pointer",
+                                                    display:"flex", alignItems:"center", gap:8,
+                                                    borderLeft: sortBy===opt.val ? "3px solid #C9A84C" : "3px solid transparent",
+                                                    transition:"background .15s",
+                                                }}>
+                                                {sortBy===opt.val && <Check size={12} color="#C9A84C"/>}
+                                                {opt.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Row 2: Category pills — horizontally scrollable */}
+                        <div className="cat-scroll">
+                            {[{ id:"all", label:"All Products" }, ...cosmeticsCategories].map(cat => (
+                                <button
+                                    key={cat.id}
+                                    className="cat-pill"
+                                    onClick={() => setActiveCategory(cat.id)}
+                                    style={{
+                                        padding:"7px 14px", borderRadius:20,
+                                        fontSize:11,
+                                        background: activeCategory===cat.id
+                                            ? "linear-gradient(120deg,#140e04,#3a2408)"
+                                            : "#fff",
+                                        color: activeCategory===cat.id ? "#C9A84C" : "#7a6050",
+                                        border: activeCategory===cat.id
+                                            ? "1.5px solid #3a2408"
+                                            : "1.5px solid #E8DFD0",
+                                        boxShadow: activeCategory===cat.id
+                                            ? "0 4px 16px rgba(20,14,4,.18)"
+                                            : "none",
+                                    }}
+                                >
+                                    {cat.label}
+                                </button>
                             ))}
                         </div>
                     </div>
                 </div>
 
-                {/* CLOSING CTA */}
-                <div style={{ maxWidth:1100, margin:"0 auto", padding:"72px 24px 80px" }}>
-                    <div style={{ background:"linear-gradient(135deg,#12100c 0%,#3d2a0a 50%,#12100c 100%)", borderRadius:24, padding:"56px 40px", textAlign:"center", position:"relative", overflow:"hidden", boxShadow:"0 16px 56px rgba(0,0,0,.2)" }}>
-                        <div style={{ position:"absolute", top:0, left:"10%", right:"10%", height:1, background:"linear-gradient(90deg,transparent,#C9A84C,transparent)" }}/>
-                        <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:10, marginBottom:16 }}>
-                            <div style={{ height:1, width:36, background:"linear-gradient(90deg,transparent,#C9A84C)" }}/>
-                            <Sparkles size={14} color="#C9A84C"/>
-                            <div style={{ height:1, width:36, background:"linear-gradient(90deg,#C9A84C,transparent)" }}/>
-                        </div>
-                        <h2 style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:"clamp(24px,4vw,40px)", fontWeight:700, color:"#f5ede0", margin:"0 0 12px", lineHeight:1.15, position:"relative", zIndex:1 }}>
-                            Looking for jewellery or fashion?
-                        </h2>
-                        <p style={{ fontSize:14, color:"#a89272", maxWidth:420, margin:"0 auto 30px", lineHeight:1.8, position:"relative", zIndex:1 }}>
-                            Explore our full range — handcrafted jewellery, artisan fashion, and more.
+                {/* ══════ PRODUCTS GRID ══════ */}
+                <div className="page-inner" style={{ paddingTop:24, paddingBottom:48 }}>
+                    {/* Results count */}
+                    <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between",
+                        marginBottom:16, flexWrap:"wrap", gap:8 }}>
+                        <p style={{ fontSize:12, color:"#9a7d50", fontWeight:600, letterSpacing:".06em", margin:0 }}>
+                            Showing <span style={{ color:"#C9A84C" }}>{Math.min(visibleCount, filtered.length)}</span> of{" "}
+                            <span style={{ color:"#1a1205" }}>{filtered.length}</span> products
                         </p>
-                        <Link href="/products" className="cta-btn" style={{ position:"relative", zIndex:1 }}>
-                            <span className="sweep"/>
-                            <Sparkles size={13} style={{ position:"relative", zIndex:1, color:"#d4a94a" }}/>
-                            <span style={{ position:"relative", zIndex:1 }}>Explore All Products</span>
-                            <ArrowRight size={13} style={{ position:"relative", zIndex:1 }}/>
-                        </Link>
+                        {searchQuery && (
+                            <p style={{ fontSize:11, color:"#7a6050", margin:0 }}>
+                                Results for "<strong>{searchQuery}</strong>"
+                            </p>
+                        )}
                     </div>
+
+                    {/* Grid */}
+                    <div ref={ref} className="products-grid">
+                        {filtered.slice(0, visibleCount).map((product, idx) => (
+                            <ProductCard
+                                key={product.id}
+                                product={product}
+                                delay={Math.min(idx * 0.04, 0.4)}
+                                onWishlistChange={handleWishlistChange}
+                            />
+                        ))}
+                    </div>
+
+                    {/* Empty state */}
+                    {filtered.length === 0 && (
+                        <div style={{ textAlign:"center", padding:"60px 20px" }}>
+                            <Sparkles size={40} color="#C9A84C" style={{ opacity:.4, marginBottom:16 }}/>
+                            <h3 style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:24, color:"#1a1205", margin:"0 0 8px" }}>
+                                No products found
+                            </h3>
+                            <p style={{ color:"#9a7d50", fontSize:13, margin:"0 0 20px" }}>
+                                Try adjusting your search or filters.
+                            </p>
+                            <button onClick={() => { setSearchQuery(""); setActiveCategory("all"); }}
+                                style={{ padding:"10px 24px", borderRadius:12, border:"1.5px solid #C9A84C",
+                                    background:"transparent", color:"#7a5f1a", fontWeight:700,
+                                    fontSize:12, cursor:"pointer", letterSpacing:".08em", textTransform:"uppercase" }}>
+                                Clear Filters
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Load more */}
+                    {visibleCount < filtered.length && (
+                        <div style={{ textAlign:"center", marginTop:36 }}>
+                            <button
+                                className="load-more-btn"
+                                onClick={() => setVisibleCount(v => v + (isMobile ? 10 : 12))}
+                            >
+                                <ChevronDown size={15}/>
+                                Load More ({filtered.length - visibleCount} remaining)
+                            </button>
+                        </div>
+                    )}
                 </div>
 
+                {/* ══════ FOOTER BANNER ══════ */}
+                <div style={{
+                    background:"linear-gradient(160deg,#12100c 0%,#251c10 100%)",
+                    padding:"clamp(36px,6vw,60px) 20px",
+                    textAlign:"center",
+                }}>
+                    <div className="gold-rule" style={{ maxWidth:200, margin:"0 auto 28px" }}/>
+                    <h2 style={{ fontFamily:"'Cormorant Garamond',serif",
+                        fontSize:"clamp(22px,5vw,42px)", fontWeight:700,
+                        color:"#F4EFE6", margin:"0 0 10px" }}>
+                        Discover Your Beauty
+                    </h2>
+                    <p style={{ color:"#9a7d50", fontSize:"clamp(12px,2vw,14px)",
+                        margin:"0 auto 24px", maxWidth:380 }}>
+                        Free shipping on orders above ₹999. Authentic products, always.
+                    </p>
+                    <Link href="/offers" className="cta-btn" style={{ fontSize:12 }}>
+                        <span className="sweep"/>
+                        View All Offers
+                        <ArrowRight size={13}/>
+                    </Link>
+                    <div className="gold-rule" style={{ maxWidth:200, margin:"28px auto 0" }}/>
+                </div>
             </div>
         </>
     );
